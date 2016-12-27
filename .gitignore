@@ -1,4 +1,4 @@
 /build
-/doxygen
+/docs
 *.o
 *.swp
