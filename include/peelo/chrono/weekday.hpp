@@ -49,7 +49,7 @@ namespace peelo
     /** Friday. */
     fri = 5,
     /** Saturday. */
-    sat = 6,
+    sat = 6
   };
 
   weekday& operator++(weekday&);
