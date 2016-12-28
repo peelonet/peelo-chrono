@@ -3,6 +3,7 @@ ADD_EXECUTABLE(
   peelocpp_chrono_test
   main.cpp
   test_month.cpp
+  test_time.cpp
   test_weekday.cpp
 )
 TARGET_LINK_LIBRARIES(
