@@ -26,6 +26,9 @@
 #include <peelo/chrono/date.hpp>
 #include <ctime>
 #include <stdexcept>
+#if !defined(BUFSIZ)
+#  define BUFSIZ 1024
+#endif
 
 namespace peelo
 {
@@ -237,6 +240,19 @@ namespace peelo
     }
 
     return days * seconds_per_day;
+  }
+
+  std::string date::format(const std::string& format) const
+  {
+    char buffer[BUFSIZ];
+    std::tm tm = make_tm(*this);
+
+    if (std::strftime(buffer, BUFSIZ, format.c_str(), &tm) == 0)
+    {
+      throw std::runtime_error("strftime() failed");
+    }
+
+    return buffer;
   }
 
   date& date::assign(const date& that)
@@ -550,6 +566,9 @@ namespace peelo
     tm.tm_year = date.year() - 1900;
     tm.tm_mon = static_cast<int>(date.month());
     tm.tm_mday = date.day();
+    tm.tm_hour = 0;
+    tm.tm_min = 0;
+    tm.tm_sec = 0;
 
     return tm;
   }

@@ -20,6 +20,7 @@ int main()
   assert(date + 5 == peelo::date(1969, peelo::month::jul, 26));
   assert(date - 5 == peelo::date(1969, peelo::month::jul, 16));
 
+  assert(date.format("%d.%m.%Y") == "21.07.1969");
   assert(peelo::date(1986, peelo::month::sep, 27) - date == 6277);
 
   return 0;

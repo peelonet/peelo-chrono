@@ -30,6 +30,9 @@
 # define WIN32_LEAN_AND_MEAN
 # include <windows.h>
 #endif
+#if !defined(BUFSIZ)
+#  define BUFSIZ 1024
+#endif
 
 namespace peelo
 {
@@ -38,6 +41,7 @@ namespace peelo
   static const int seconds_per_day = seconds_per_hour * 24;
 
   static void normalize(int&, int&, int&);
+  static std::tm make_tm(const time&);
 
   time::time(int hour, int minute, int second)
     : m_hour(hour)
@@ -89,6 +93,19 @@ namespace peelo
     return (hour >= 0 && hour <= 23)
       && (minute >= 0 && minute <= 59)
       && (second >= 0 && second <= 59);
+  }
+
+  std::string time::format(const std::string& format) const
+  {
+    char buffer[BUFSIZ];
+    std::tm tm = make_tm(*this);
+
+    if (std::strftime(buffer, BUFSIZ, format.c_str(), &tm) == 0)
+    {
+      throw std::runtime_error("strftime() failed");
+    }
+
+    return buffer;
   }
 
   time& time::assign(const time& that)
@@ -330,5 +347,19 @@ namespace peelo
     {
       second -= minute * seconds_per_minute;
     }
+  }
+
+  static std::tm make_tm(const class time& time)
+  {
+    std::tm tm = {0};
+
+    tm.tm_year = 90;
+    tm.tm_mon = 0;
+    tm.tm_mday = 1;
+    tm.tm_hour = time.hour();
+    tm.tm_min = time.minute();
+    tm.tm_sec = time.second();
+
+    return tm;
   }
 }

@@ -28,6 +28,7 @@
 
 #include <peelo/chrono/month.hpp>
 #include <peelo/chrono/weekday.hpp>
+#include <string>
 
 namespace peelo
 {
@@ -177,6 +178,11 @@ namespace peelo
      * Calculates UNIX timestamp from date.
      */
     long timestamp() const;
+
+    /**
+     * Uses strftime() function to format the date into a string.
+     */
+    std::string format(const std::string& format) const;
 
     /**
      * Assigns values from another date into this one.

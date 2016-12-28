@@ -206,6 +206,11 @@ namespace peelo
     long timestamp() const;
 
     /**
+     * Uses strftime() function to format the datetime into a string.
+     */
+    std::string format(const std::string& format) const;
+
+    /**
      * Assigns values from another date and time into this one.
      *
      * \param that Other date and time to copy values from

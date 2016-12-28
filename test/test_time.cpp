@@ -37,6 +37,7 @@ int main()
   time -= 3600;
   assert(time.equals(22, 59, 0));
 
+  assert(time.format("%H:%M:%S") == "22:59:00");
   assert(time_to_string(time) == "22:59:00");
 
   return 0;
