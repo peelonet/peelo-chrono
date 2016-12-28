@@ -32,33 +32,35 @@ namespace peelo
 {
   /**
    * Enum type which represents month on Gregorian calendar.
+   *
+   * <b>Note:</b> Months are zero indexed, so January is month 0.
    */
   enum class month
   {
     /** January. */
-    jan = 1,
+    jan = 0,
     /** February. */
-    feb = 2,
+    feb = 1,
     /** March. */
-    mar = 3,
+    mar = 2,
     /** April. */
-    apr = 4,
+    apr = 3,
     /** May. */
-    may = 5,
+    may = 4,
     /** June. */
-    jun = 6,
+    jun = 5,
     /** July. */
-    jul = 7,
+    jul = 6,
     /** August. */
-    aug = 8,
+    aug = 7,
     /** September. */
-    sep = 9,
+    sep = 8,
     /** October. */
-    oct = 10,
+    oct = 9,
     /** November. */
-    nov = 11,
+    nov = 10,
     /** December. */
-    dec = 12
+    dec = 11
   };
 
   month& operator++(month&);

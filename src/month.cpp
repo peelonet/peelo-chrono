@@ -63,7 +63,7 @@ namespace peelo
 
       for (int i = 0; i < delta; ++i)
       {
-        result = result < 12 ? result + 1 : 1;
+        result = result < 11 ? result + 1 : 0;
       }
 
       return static_cast<month>(result);
@@ -80,7 +80,7 @@ namespace peelo
 
       for (int i = 0; i < delta; ++i)
       {
-        result = result > 1 ? result - 1 : 12;
+        result = result > 0 ? result - 1 : 11;
       }
 
       return static_cast<month>(result);
@@ -95,7 +95,7 @@ namespace peelo
 
     for (int i = 0; i < delta; ++i)
     {
-      result = result < 12 ? result + 1 : 1;
+      result = result < 11 ? result + 1 : 0;
     }
 
     return original = static_cast<month>(result);
@@ -107,7 +107,7 @@ namespace peelo
 
     for (int i = 0; i < delta; ++i)
     {
-      result = result > 1 ? result - 1 : 12;
+      result = result > 0 ? result - 1 : 11;
     }
 
     return original = static_cast<month>(result);

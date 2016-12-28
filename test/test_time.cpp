@@ -11,7 +11,7 @@ static std::string time_to_string(const peelo::time& time)
   return ss.str();
 }
 
-void test_time()
+int main()
 {
   peelo::time time = peelo::time(0, 0, 0);
 
@@ -38,4 +38,6 @@ void test_time()
   assert(time.equals(22, 59, 0));
 
   assert(time_to_string(time) == "22:59:00");
+
+  return 0;
 }

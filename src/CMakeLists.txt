@@ -1,5 +1,6 @@
 ADD_LIBRARY(
   peelocpp_chrono
+  date.cpp
   month.cpp
   time.cpp
   weekday.cpp

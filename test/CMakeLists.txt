@@ -1,13 +1,9 @@
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}../include)
-ADD_EXECUTABLE(
-  peelocpp_chrono_test
-  main.cpp
-  test_month.cpp
-  test_time.cpp
-  test_weekday.cpp
-)
-TARGET_LINK_LIBRARIES(
-  peelocpp_chrono_test
-  peelocpp_chrono
-)
-ADD_TEST(NAME MyTest COMMAND peelocpp_chrono_test)
+
+FILE(GLOB TEST_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+FOREACH(TEST_FILENAME ${TEST_SOURCES})
+  GET_FILENAME_COMPONENT(TEST_NAME ${TEST_FILENAME} NAME_WE)
+  ADD_EXECUTABLE(${TEST_NAME} ${TEST_FILENAME})
+  TARGET_LINK_LIBRARIES(${TEST_NAME} peelocpp_chrono)
+  ADD_TEST(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
+ENDFOREACH()
