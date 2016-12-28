@@ -11,7 +11,7 @@ static std::string month_to_string(const peelo::month& month)
   return ss.str();
 }
 
-void test_month()
+int main()
 {
   assert(static_cast<int>(peelo::month::jan) == 1);
 
@@ -22,4 +22,6 @@ void test_month()
 
   assert(month_to_string(peelo::month::jan) == "January");
   assert(month_to_string(peelo::month::oct) == "October");
+
+  return 0;
 }
