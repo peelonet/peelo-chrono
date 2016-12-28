@@ -53,7 +53,22 @@ namespace peelo
 
   datetime datetime::now()
   {
-    return datetime(); // TODO
+    std::time_t ts = std::time(nullptr);
+    std::tm* tm = std::localtime(&ts);
+
+    if (!tm || tm->tm_mon < 0 || tm->tm_mon > 11)
+    {
+      throw std::runtime_error("localtime() failed");
+    }
+
+    return datetime(
+      tm->tm_year + 1900,
+      static_cast<enum month>(tm->tm_mon),
+      tm->tm_mday,
+      tm->tm_hour,
+      tm->tm_min,
+      tm->tm_sec
+    );
   }
 
   datetime datetime::timestamp(long timestamp)
