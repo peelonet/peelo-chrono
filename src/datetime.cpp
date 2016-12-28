@@ -26,6 +26,9 @@
 #include <peelo/chrono/datetime.hpp>
 #include <ctime>
 #include <stdexcept>
+#if !defined(BUFSIZ)
+#  define BUFSIZ 1024
+#endif
 
 namespace peelo
 {
@@ -92,6 +95,19 @@ namespace peelo
       + (m_time.hour() * 3600)
       + m_date.timestamp()
     );
+  }
+
+  std::string datetime::format(const std::string& format) const
+  {
+    char buffer[BUFSIZ];
+    std::tm tm = make_tm(*this);
+
+    if (std::strftime(buffer, BUFSIZ, format.c_str(), &tm) == 0)
+    {
+      throw std::runtime_error("strftime() failed");
+    }
+
+    return buffer;
   }
 
   datetime& datetime::assign(const datetime& that)

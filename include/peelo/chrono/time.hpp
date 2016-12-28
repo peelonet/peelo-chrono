@@ -27,6 +27,7 @@
 #define PEELO_CHRONO_TIME_HPP_GUARD
 
 #include <iostream>
+#include <string>
 
 namespace peelo
 {
@@ -94,6 +95,11 @@ namespace peelo
     {
       return m_second;
     }
+
+    /**
+     * Uses strftime() function to format the time into a string.
+     */
+    std::string format(const std::string& format) const;
 
     /**
      * Assigns values from another time into this one.
