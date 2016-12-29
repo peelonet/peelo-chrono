@@ -158,40 +158,4 @@ namespace peelo
 
     return os;
   }
-
-  std::wostream& operator<<(std::wostream& os, const weekday& day)
-  {
-    switch (day)
-    {
-      case weekday::sun:
-        os << L"Sunday";
-        break;
-
-      case weekday::mon:
-        os << L"Monday";
-        break;
-
-      case weekday::tue:
-        os << L"Tuesday";
-        break;
-
-      case weekday::wed:
-        os << L"Wednesday";
-        break;
-
-      case weekday::thu:
-        os << L"Thursday";
-        break;
-
-      case weekday::fri:
-        os << L"Friday";
-        break;
-
-      case weekday::sat:
-        os << L"Saturday";
-        break;
-    }
-
-    return os;
-  }
 }

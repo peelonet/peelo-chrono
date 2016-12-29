@@ -73,7 +73,6 @@ namespace peelo
   month& operator-=(month&, int);
 
   std::ostream& operator<<(std::ostream&, const month&);
-  std::wostream& operator<<(std::wostream&, const month&);
 }
 
 #endif /* !PEELO_CHRONO_MONTH_HPP_GUARD */

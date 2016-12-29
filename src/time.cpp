@@ -306,31 +306,6 @@ namespace peelo
     return os;
   }
 
-  std::wostream& operator<<(std::wostream& os, const class time& time)
-  {
-    const int hour = time.hour();
-    const int minute = time.minute();
-    const int second = time.second();
-
-    if (hour < 10)
-    {
-      os << L'0';
-    }
-    os << hour << L':';
-    if (minute < 10)
-    {
-      os << L'0';
-    }
-    os << minute << L':';
-    if (second < 10)
-    {
-      os << L'0';
-    }
-    os << second;
-
-    return os;
-  }
-
   static void normalize(int& second, int& minute, int& hour)
   {
     while (second > seconds_per_day)

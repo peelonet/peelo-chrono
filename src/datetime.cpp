@@ -274,13 +274,6 @@ namespace peelo
     return os;
   }
 
-  std::wostream& operator<<(std::wostream& os, const class datetime& datetime)
-  {
-    os << datetime.date() << L'T' << datetime.time() << L'Z';
-
-    return os;
-  }
-
   static std::tm make_tm(const datetime& dt)
   {
     std::tm tm = {0};
