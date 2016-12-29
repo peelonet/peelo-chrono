@@ -39,7 +39,7 @@ int main()
   assert(dt - peelo::datetime(1969, peelo::month::jul, 22, 2, 50, 0) == 360);
 
   assert(dt.format("%d.%m.%Y %H:%M:%S") == "22.07.1969 02:56:00");
-  assert(datetime_to_string(dt) == "1969-07-22T02:56:00Z");
+  assert(datetime_to_string(dt) == "Sun, 22 Jul 1969 02:56:00 +0000");
 
   return 0;
 }

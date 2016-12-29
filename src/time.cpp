@@ -283,25 +283,7 @@ namespace peelo
 
   std::ostream& operator<<(std::ostream& os, const class time& time)
   {
-    const int hour = time.hour();
-    const int minute = time.minute();
-    const int second = time.second();
-
-    if (hour < 10)
-    {
-      os << '0';
-    }
-    os << hour << ':';
-    if (minute < 10)
-    {
-      os << '0';
-    }
-    os << minute << ':';
-    if (second < 10)
-    {
-      os << '0';
-    }
-    os << second;
+    os << time.format("%T");
 
     return os;
   }
