@@ -52,15 +52,49 @@ namespace peelo
     sat = 6
   };
 
+  /**
+   * Increments weekday by one, wrapping to Sunday if the weekday is Monday.
+   */
   weekday& operator++(weekday&);
+
+  /**
+   * Decrements weekday by one, wrapping to Monday if the weekday is Sunday.
+   */
   weekday& operator--(weekday&);
+
+  /**
+   * Increments weekday by one, wrapping to Sunday if the weekday is Monday.
+   */
   weekday operator++(weekday&, int);
+
+  /**
+   * Decrements weekday by one, wrapping to Monday if the weekday is Sunday.
+   */
   weekday operator--(weekday&, int);
+
+  /**
+   * Increments weekday by given amount of days.
+   */
   weekday operator+(const weekday&, int);
+
+  /**
+   * Decrements weekday by given amount of days.
+   */
   weekday operator-(const weekday&, int);
+
+  /**
+   * Adds given number of days into the weekday.
+   */
   weekday& operator+=(weekday&, int);
+
+  /**
+   * Substracts given number of days from the weekday.
+   */
   weekday& operator-=(weekday&, int);
 
+  /**
+   * Writes full name of the weekday (in English) to the stream.
+   */
   std::ostream& operator<<(std::ostream&, const weekday&);
 }
 

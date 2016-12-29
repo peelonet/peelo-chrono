@@ -260,6 +260,10 @@ namespace peelo
     int m_second;
   };
 
+  /**
+   * Writes textual presentation of the time into the stream in RFC 2822
+   * compliant format.
+   */
   std::ostream& operator<<(std::ostream&, const time&);
 }
 

@@ -405,6 +405,10 @@ namespace peelo
     class time m_time;
   };
 
+  /**
+   * Writes textual presentation of date and time into the stream in RFC 2822
+   * compliant format.
+   */
   std::ostream& operator<<(std::ostream&, const datetime&);
 }
 

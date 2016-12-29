@@ -349,6 +349,10 @@ namespace peelo
     int m_day;
   };
 
+  /**
+   * Writes textual presentation of the date into the stream in RFC 2822
+   * compliant format.
+   */
   std::ostream& operator<<(std::ostream&, const date&);
 }
 

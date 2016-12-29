@@ -63,15 +63,49 @@ namespace peelo
     dec = 11
   };
 
+  /**
+   * Increments month by one, wrapping to January if the month is December.
+   */
   month& operator++(month&);
+
+  /**
+   * Decrements month by one, wrapping to December if the month is January.
+   */
   month& operator--(month&);
+
+  /**
+   * Increments month by one, wrapping to January if the month is December.
+   */
   month operator++(month&, int);
+
+  /**
+   * Decrements month by one, wrapping to December if the month is January.
+   */
   month operator--(month&, int);
+
+  /**
+   * Increments month by given amount of months.
+   */
   month operator+(const month&, int);
+
+  /**
+   * Decrements month by given amount of months.
+   */
   month operator-(const month&, int);
+
+  /**
+   * Adds given number of months into the month.
+   */
   month& operator+=(month&, int);
+
+  /**
+   * Substracts given number of months from the month.
+   */
   month& operator-=(month&, int);
 
+  /**
+   * Writes name of the month (in English) into the stream.
+   */
   std::ostream& operator<<(std::ostream&, const month&);
 }
 
