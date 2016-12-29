@@ -485,76 +485,7 @@ namespace peelo
 
   std::ostream& operator<<(std::ostream& os, const class date& date)
   {
-    int year = date.year();
-    const int month = static_cast<int>(date.month()) + 1;
-    const int day = date.day();
-
-    if (year < 0)
-    {
-      year = -year - 1;
-      os << '-';
-    }
-    if (year < 1000)
-    {
-      os << '0';
-      if (year < 100)
-      {
-        os << '0';
-        if (year < 10)
-        {
-          os << '0';
-        }
-      }
-    }
-    os << year << '-';
-    if (month < 10)
-    {
-      os << '0';
-    }
-    os << month << '-';
-    if (day < 10)
-    {
-      os << '0';
-    }
-    os << day;
-
-    return os;
-  }
-
-  std::wostream& operator<<(std::wostream& os, const class date& date)
-  {
-    int year = date.year();
-    const int month = static_cast<int>(date.month()) + 1;
-    const int day = date.day();
-
-    if (year < 0)
-    {
-      year = -year - 1;
-      os << L'-';
-    }
-    if (year < 1000)
-    {
-      os << L'0';
-      if (year < 100)
-      {
-        os << L'0';
-        if (year < 10)
-        {
-          os << L'0';
-        }
-      }
-    }
-    os << year << L'-';
-    if (month < 10)
-    {
-      os << L'0';
-    }
-    os << month << L'-';
-    if (day < 10)
-    {
-      os << L'0';
-    }
-    os << day;
+    os << date.format("%d %b %Y");
 
     return os;
   }

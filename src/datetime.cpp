@@ -34,6 +34,8 @@ namespace peelo
 {
   static std::tm make_tm(const datetime&);
 
+  const std::string datetime::format_rfc2822("%a, %d %b %Y %T %z");
+
   datetime::datetime(int year,
                      const enum month& month,
                      int day,
@@ -269,14 +271,7 @@ namespace peelo
 
   std::ostream& operator<<(std::ostream& os, const class datetime& datetime)
   {
-    os << datetime.date() << 'T' << datetime.time() << 'Z';
-
-    return os;
-  }
-
-  std::wostream& operator<<(std::wostream& os, const class datetime& datetime)
-  {
-    os << datetime.date() << L'T' << datetime.time() << L'Z';
+    os << datetime.format(datetime::format_rfc2822);
 
     return os;
   }

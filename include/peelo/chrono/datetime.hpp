@@ -38,6 +38,11 @@ namespace peelo
   {
   public:
     /**
+     * Format string for RFC 2822 compliant date and time format.
+     */
+    static const std::string format_rfc2822;
+
+    /**
      * Constructs datetime from given values.
      *
      * \param year   Year of the date
@@ -401,7 +406,6 @@ namespace peelo
   };
 
   std::ostream& operator<<(std::ostream&, const datetime&);
-  std::wostream& operator<<(std::wostream&, const datetime&);
 }
 
 #endif /* !PEELO_CHRONO_DATETIME_HPP_GUARD */

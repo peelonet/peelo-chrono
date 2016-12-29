@@ -62,7 +62,6 @@ namespace peelo
   weekday& operator-=(weekday&, int);
 
   std::ostream& operator<<(std::ostream&, const weekday&);
-  std::wostream& operator<<(std::wostream&, const weekday&);
 }
 
 #endif /* !PEELO_CHRONO_WEEKDAY_HPP_GUARD */
