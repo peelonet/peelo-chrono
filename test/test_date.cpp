@@ -34,5 +34,9 @@ int main()
   assert(date_to_string(date) == "21 Jul 1969");
   assert(peelo::date(1986, peelo::month::sep, 27) - date == 6277);
 
+  const auto today = peelo::date::today();
+
+  assert(peelo::date::is_valid(today.year(), today.month(), today.day()));
+
   return 0;
 }

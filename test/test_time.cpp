@@ -40,5 +40,9 @@ int main()
   assert(time.format("%H:%M:%S") == "22:59:00");
   assert(time_to_string(time) == "22:59:00");
 
+  const auto now = peelo::time::now();
+
+  assert(peelo::time::is_valid(now.hour(), now.minute(), now.second()));
+
   return 0;
 }

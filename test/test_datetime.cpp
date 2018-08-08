@@ -41,5 +41,16 @@ int main()
   assert(dt.format("%d.%m.%Y %H:%M:%S") == "22.07.1969 02:56:00");
   assert(datetime_to_string(dt) == "Sun, 22 Jul 1969 02:56:00 +0000");
 
+  const auto now = peelo::datetime::now();
+
+  assert(peelo::datetime::is_valid(
+    now.year(),
+    now.month(),
+    now.day(),
+    now.hour(),
+    now.minute(),
+    now.second()
+  ));
+
   return 0;
 }

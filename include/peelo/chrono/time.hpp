@@ -70,7 +70,7 @@ namespace peelo
      * \return       A boolean flag indicating whether an valid time can be
      *               constructed from given values
      */
-    static bool is_valid(int hour, int minute, int day);
+    static bool is_valid(int hour, int minute, int second);
 
     /**
      * Returns hour of the day (from 0 to 23).
