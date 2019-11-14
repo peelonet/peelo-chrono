@@ -1,10 +1,11 @@
-# peelocpp-chrono ![build status][0]
+# peelo-chrono [![travis][travis-image]][travis-url]
 
-Minimal C++ Gregorian calendar implementation. Polished version of date and
-time API from [peelo-cpp][1] as standalone library.
+[travis-image]: https://img.shields.io/travis/peelonet/peelo-chrono/master.svg
+[travis-url]: https://travis-ci.org/peelonet/peelo-chrono
+
+C++17 header only minimal C++ Gregorian calendar implementation.
 
 [Doxygen generated API documentation][2]
 
 [0]: https://api.travis-ci.org/peelonet/peelocpp-chrono.svg?branch=master
-[1]: https://github.com/peelonet/peelo-cpp
-[2]: https://peelonet.github.io/peelocpp-chrono/
+[2]: https://peelonet.github.io/peelo-chrono/
