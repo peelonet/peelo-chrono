@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, peelo.net
+ * Copyright (c) 2016-2019, peelo.net
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,7 @@
 #include <peelo/chrono/date.hpp>
 #include <peelo/chrono/time.hpp>
 
-namespace peelo
+namespace peelo::chrono
 {
   /**
    * Combination of date and time.
@@ -40,7 +40,7 @@ namespace peelo
     /**
      * Format string for RFC 2822 compliant date and time format.
      */
-    static const std::string format_rfc2822;
+    static constexpr const char* format_rfc2822 = "%a, %d %b %Y %T %z";
 
     /**
      * Constructs datetime from given values.
@@ -56,22 +56,28 @@ namespace peelo
      */
     explicit datetime(
       int year = 1900,
-      const enum month& month = peelo::month::jan,
+      const enum month& month = month::jan,
       int day = 1,
       int hour = 0,
       int minute = 0,
       int second = 0
-    );
+    )
+      : m_date(year, month, day)
+      , m_time(hour, minute, second) {}
 
     /**
      * Copy constructor.
      */
-    datetime(const datetime& that);
+    datetime(const datetime& that)
+      : m_date(that.m_date)
+      , m_time(that.m_time) {}
 
     /**
      * Constructs datetime from given date and time.
      */
-    datetime(const class date& date, const class time& time);
+    datetime(const class date& date, const class time& time)
+      : m_date(date)
+      , m_time(time) {}
 
     /**
      * Returns current date and time based on system clock.
@@ -79,12 +85,48 @@ namespace peelo
      * \throw std::runtime_error If current date and time cannot be extracted
      *                           from the system for reason
      */
-    static datetime now();
+    static datetime now()
+    {
+      auto ts = std::time(nullptr);
+      auto tm = std::localtime(&ts);
+
+      if (!tm || tm->tm_mon < 0 || tm->tm_mon > 11)
+      {
+        throw std::runtime_error("localtime() failed");
+      }
+
+      return datetime(
+        tm->tm_year + 1900,
+        static_cast<enum month>(tm->tm_mon),
+        tm->tm_mday,
+        tm->tm_hour,
+        tm->tm_min,
+        tm->tm_sec
+      );
+    }
 
     /**
      * Constructs date and time from UNIX timestamp.
      */
-    static datetime timestamp(long timestamp);
+    static datetime timestamp(long timestamp)
+    {
+      auto ts = static_cast<std::time_t>(timestamp);
+      auto tm = std::localtime(&ts);
+
+      if (!tm || tm->tm_mon < 0 || tm->tm_mon > 11)
+      {
+        throw std::runtime_error("localtime() failed");
+      }
+
+      return datetime(
+        tm->tm_year + 1900,
+        static_cast<enum month>(tm->tm_mon),
+        tm->tm_mday,
+        tm->tm_hour,
+        tm->tm_min,
+        tm->tm_sec
+      );
+    }
 
     /**
      * Tests whether given values are a valid date and time.
@@ -98,14 +140,18 @@ namespace peelo
      * \return       A boolean flag indicating whether valid date and time can
      *               be constructed from given values
      */
-    static bool is_valid(
+    static inline bool is_valid(
       int year,
       const enum month& month,
       int day,
       int hour,
       int minute,
       int second
-    );
+    )
+    {
+      return date::is_valid(year, month, day)
+        && time::is_valid(hour, minute, second);
+    }
 
     /**
      * Returns date value.
@@ -208,19 +254,41 @@ namespace peelo
     /**
      * Calculates UNIX timestamp from date and time.
      */
-    long timestamp() const;
+    inline std::int64_t timestamp() const
+    {
+      return (
+        static_cast<std::int64_t>(m_time.second())
+        + (m_time.minute() * 60)
+        + (m_time.hour() * 3600)
+        + m_date.timestamp()
+      );
+    }
 
     /**
      * Uses strftime() function to format the datetime into a string.
      */
-    std::string format(const std::string& format) const;
+    std::string format(const std::string& format) const
+    {
+      char buffer[BUFSIZ];
+      auto tm = make_tm(*this);
+
+      if (!std::strftime(buffer, BUFSIZ, format.c_str(), &tm))
+      {
+        throw std::runtime_error("strftime() failed");
+      }
+
+      return buffer;
+    }
 
     /**
      * Assigns values from another date and time into this one.
      *
      * \param that Other date and time to copy values from
      */
-    datetime& assign(const datetime& that);
+    inline datetime& assign(const datetime& that)
+    {
+      return assign(that.m_date, that.m_time);
+    }
 
     /**
      * Replaces values of the date and time with given values.
@@ -241,12 +309,24 @@ namespace peelo
       int hour,
       int minute,
       int second
-    );
+    )
+    {
+      m_date.assign(year, month, day);
+      m_time.assign(hour, minute, second);
+
+      return *this;
+    }
 
     /**
      * Replaces values of the date and time with given values.
      */
-    datetime& assign(const class date& date, const class time& time);
+    datetime& assign(const class date& date, const class time& time)
+    {
+      m_date.assign(date);
+      m_time.assign(time);
+
+      return *this;
+    }
 
     /**
      * Assignment operator.
@@ -261,24 +341,34 @@ namespace peelo
      *
      * \param that Other date and time to test equality with
      */
-    bool equals(const datetime& that) const;
+    inline bool equals(const datetime& that) const
+    {
+      return m_date.equals(that.m_date) && m_time.equals(that.m_time);
+    }
 
     /**
      * Tests whether date and time are equal with given values.
      */
-    bool equals(
+    inline bool equals(
       int year,
       const enum month& month,
       int day,
       int hour,
       int minute,
       int second
-    ) const;
+    ) const
+    {
+      return m_date.equals(year, month, day)
+        && m_time.equals(hour, minute, second);
+    }
 
     /**
      * Tests whether date and time are equal with given values.
      */
-    bool equals(const class date& date, const class time& time) const;
+    inline bool equals(const class date& date, const class time& time) const
+    {
+      return m_date.equals(date) && m_time.equals(time);
+    }
 
     /**
      * Equality testing operator.
@@ -302,7 +392,17 @@ namespace peelo
      * \param that Other datetime to compare this one against
      * \return     Integer value indicating comparison result
      */
-    int compare(const datetime& that) const;
+    int compare(const datetime& that) const
+    {
+      const int cmp = m_date.compare(that.m_date);
+
+      if (cmp != 0)
+      {
+        return cmp;
+      }
+
+      return m_time.compare(that.m_time);
+    }
 
     /**
      * Compares this datetime value against given values.
@@ -314,12 +414,32 @@ namespace peelo
       int hour,
       int minute,
       int second
-    ) const;
+    ) const
+    {
+      const int cmp = m_date.compare(year, month, day);
+
+      if (cmp != 0)
+      {
+        return cmp;
+      }
+
+      return m_time.compare(hour, minute, second);
+    }
 
     /**
      * Compares this datetime value against given date and time values.
      */
-    int compare(const class date& date, const class time& time) const;
+    int compare(const class date& date, const class time& time) const
+    {
+      const int cmp = m_date.compare(date);
+
+      if (cmp != 0)
+      {
+        return cmp;
+      }
+
+      return m_time.compare(time);
+    }
 
     /**
      * Comparison operator.
@@ -356,47 +476,110 @@ namespace peelo
     /**
      * Increments date by one day.
      */
-    datetime& operator++();
+    datetime& operator++()
+    {
+      ++m_date;
+
+      return *this;
+    }
 
     /**
      * Increments date by one day.
      */
-    datetime operator++(int);
+    datetime operator++(int)
+    {
+      const datetime return_value(*this);
+
+      ++m_date;
+
+      return return_value;
+    }
 
     /**
      * Decrements date by one day.
      */
-    datetime& operator--();
+    datetime& operator--()
+    {
+      --m_date;
+
+      return *this;
+    }
 
     /**
      * Decrements date by one day.
      */
-    datetime operator--(int);
+    datetime operator--(int)
+    {
+      const datetime return_value(*this);
+
+      --m_date;
+
+      return return_value;
+    }
 
     /**
      * Adds given amount of days to the datetime and returns result.
      */
-    datetime operator+(int days) const;
+    inline datetime operator+(int days) const
+    {
+      return datetime(m_date + days, m_time);
+    }
 
     /**
      * Substracts given amount of days from the datetime and returns result.
      */
-    datetime operator-(int days) const;
+    inline datetime operator-(int days) const
+    {
+      return datetime(m_date - days, m_time);
+    }
 
     /**
      * Adds given amount of days to the datetime.
      */
-    datetime& operator+=(int days);
+    datetime& operator+=(int days)
+    {
+      m_date += days;
+
+      return *this;
+    }
 
     /**
      * Substracts given amount of days from the datetime.
      */
-    datetime& operator-=(int days);
+    datetime& operator-=(int days)
+    {
+      m_date -= days;
+
+      return *this;
+    }
 
     /**
      * Returns the difference (in seconds) between two datetimes.
      */
-    int operator-(const datetime& that) const;
+    int operator-(const datetime& that) const
+    {
+      auto tm1 = make_tm(*this);
+      auto tm2 = make_tm(that);
+      const auto time1 = std::mktime(&tm1);
+      const auto time2 = std::mktime(&tm2);
+
+      return static_cast<int>(std::difftime(time1, time2));
+    }
+
+  private:
+    static std::tm make_tm(const datetime& dt)
+    {
+      std::tm tm = {0};
+
+      tm.tm_year = dt.year() - 1900;
+      tm.tm_mon = static_cast<int>(dt.month());
+      tm.tm_mday = dt.day();
+      tm.tm_hour = dt.hour();
+      tm.tm_min = dt.minute();
+      tm.tm_sec = dt.second();
+
+      return tm;
+    }
 
   private:
     /** Date value of date and time. */
@@ -406,10 +589,13 @@ namespace peelo
   };
 
   /**
-   * Writes textual presentation of date and time into the stream in RFC 2822
+   * Returns textual presentation of date and time into the stream in RFC 2822
    * compliant format.
    */
-  std::ostream& operator<<(std::ostream&, const datetime&);
+  inline std::string to_string(const class datetime& datetime)
+  {
+    return datetime.format(datetime::format_rfc2822);
+  }
 }
 
 #endif /* !PEELO_CHRONO_DATETIME_HPP_GUARD */

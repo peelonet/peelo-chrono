@@ -1,28 +1,20 @@
 #include <peelo/chrono/weekday.hpp>
 #include <cassert>
-#include <sstream>
-
-static std::string weekday_to_string(const peelo::weekday& day)
-{
-  std::stringstream ss;
-
-  ss << day;
-
-  return ss.str();
-}
 
 int main()
 {
-  assert(static_cast<int>(peelo::weekday::mon) == 1);
-  assert(static_cast<int>(peelo::weekday::sun) == 0);
+  using namespace peelo;
 
-  assert(peelo::weekday::mon + 3 == peelo::weekday::thu);
-  assert(peelo::weekday::sat - 2 == peelo::weekday::thu);
-  assert(peelo::weekday::mon + 8 == peelo::weekday::tue);
-  assert(peelo::weekday::sat - 11 == peelo::weekday::tue);
+  assert(static_cast<int>(chrono::weekday::mon) == 1);
+  assert(static_cast<int>(chrono::weekday::sun) == 0);
 
-  assert(weekday_to_string(peelo::weekday::mon) == "Monday");
-  assert(weekday_to_string(peelo::weekday::fri) == "Friday");
+  assert(chrono::weekday::mon + 3 == chrono::weekday::thu);
+  assert(chrono::weekday::sat - 2 == chrono::weekday::thu);
+  assert(chrono::weekday::mon + 8 == chrono::weekday::tue);
+  assert(chrono::weekday::sat - 11 == chrono::weekday::tue);
+
+  assert(chrono::to_string(chrono::weekday::mon) == "Monday");
+  assert(chrono::to_string(chrono::weekday::fri) == "Friday");
 
   return 0;
 }
