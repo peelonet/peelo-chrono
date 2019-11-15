@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, peelo.net
+ * Copyright (c) 2016-2019, peelo.net
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,9 +26,9 @@
 #ifndef PEELO_CHRONO_WEEKDAY_HPP_GUARD
 #define PEELO_CHRONO_WEEKDAY_HPP_GUARD
 
-#include <iostream>
+#include <string>
 
-namespace peelo
+namespace peelo::chrono
 {
   /**
    * Enumerated type which represents day of the week, where Sunday is the
@@ -52,50 +52,160 @@ namespace peelo
     sat = 6
   };
 
-  /**
-   * Increments weekday by one, wrapping to Sunday if the weekday is Monday.
-   */
-  weekday& operator++(weekday&);
-
-  /**
-   * Decrements weekday by one, wrapping to Monday if the weekday is Sunday.
-   */
-  weekday& operator--(weekday&);
-
-  /**
-   * Increments weekday by one, wrapping to Sunday if the weekday is Monday.
-   */
-  weekday operator++(weekday&, int);
-
-  /**
-   * Decrements weekday by one, wrapping to Monday if the weekday is Sunday.
-   */
-  weekday operator--(weekday&, int);
+  weekday operator-(const weekday&, int);
+  weekday& operator-=(weekday&, int);
 
   /**
    * Increments weekday by given amount of days.
    */
-  weekday operator+(const weekday&, int);
+  inline weekday operator+(const weekday& original, int delta)
+  {
+    if (delta >= 0)
+    {
+      int result = static_cast<int>(original);
+
+      for (int i = 0; i < delta; ++i)
+      {
+        result = result < 6 ? result + 1 : 0;
+      }
+
+      return static_cast<weekday>(result);
+    }
+
+    return original - (-delta);
+  }
 
   /**
    * Decrements weekday by given amount of days.
    */
-  weekday operator-(const weekday&, int);
+  inline weekday operator-(const weekday& original, int delta)
+  {
+    if (delta >= 0)
+    {
+      int result = static_cast<int>(original);
+
+      for (int i = 0; i < delta; ++i)
+      {
+        result = result > 0 ? result - 1 : 6;
+      }
+
+      return static_cast<weekday>(result);
+    }
+
+    return original + (-delta);
+  }
 
   /**
    * Adds given number of days into the weekday.
    */
-  weekday& operator+=(weekday&, int);
+  inline weekday& operator+=(weekday& original, int delta)
+  {
+    if (delta >= 0)
+    {
+      int result = static_cast<int>(original);
+
+      for (int i = 0; i < delta; ++i)
+      {
+        result = result < 6 ? result + 1 : 0;
+      }
+
+      return original = static_cast<weekday>(result);
+    }
+
+    return original -= (-delta);
+  }
 
   /**
    * Substracts given number of days from the weekday.
    */
-  weekday& operator-=(weekday&, int);
+  inline weekday& operator-=(weekday& original, int delta)
+  {
+    if (delta >= 0)
+    {
+      int result = static_cast<int>(original);
+
+      for (int i = 0; i < delta; ++i)
+      {
+        result = result > 0 ? result - 1 : 6;
+      }
+
+      return original = static_cast<weekday>(result);
+    }
+
+    return original += (-delta);
+  }
 
   /**
-   * Writes full name of the weekday (in English) to the stream.
+   * Increments weekday by one, wrapping to Sunday if the weekday is Monday.
    */
-  std::ostream& operator<<(std::ostream&, const weekday&);
+  inline weekday& operator++(weekday& original)
+  {
+    return original += 1;
+  }
+
+  /**
+   * Decrements weekday by one, wrapping to Monday if the weekday is Sunday.
+   */
+  inline weekday& operator--(weekday& original)
+  {
+    return original -= 1;
+  }
+
+  /**
+   * Increments weekday by one, wrapping to Sunday if the weekday is Monday.
+   */
+  inline weekday operator++(weekday& original, int)
+  {
+    const weekday return_value = original;
+
+    original += 1;
+
+    return return_value;
+  }
+
+  /**
+   * Decrements weekday by one, wrapping to Monday if the weekday is Sunday.
+   */
+  inline weekday operator--(weekday& original, int)
+  {
+    const weekday return_value = original;
+
+    original -= 1;
+
+    return return_value;
+  }
+
+  /**
+   * Returns full name of the weekday (in English) to the stream.
+   */
+  inline std::string to_string(const weekday& day)
+  {
+    switch (day)
+    {
+      case weekday::sun:
+        return "Sunday";
+
+      case weekday::mon:
+        return "Monday";
+
+      case weekday::tue:
+        return "Tuesday";
+
+      case weekday::wed:
+        return "Wednesday";
+
+      case weekday::thu:
+        return "Thursday";
+
+      case weekday::fri:
+        return "Friday";
+
+      case weekday::sat:
+        return "Saturday";
+    }
+
+    return "Unknown";
+  }
 }
 
 #endif /* !PEELO_CHRONO_WEEKDAY_HPP_GUARD */

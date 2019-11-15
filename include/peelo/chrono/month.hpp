@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, peelo.net
+ * Copyright (c) 2016-2019, peelo.net
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,9 +26,9 @@
 #ifndef PEELO_CHRONO_MONTH_HPP_GUARD
 #define PEELO_CHRONO_MONTH_HPP_GUARD
 
-#include <iostream>
+#include <string>
 
-namespace peelo
+namespace peelo::chrono
 {
   /**
    * Enum type which represents month on Gregorian calendar.
@@ -63,50 +63,165 @@ namespace peelo
     dec = 11
   };
 
-  /**
-   * Increments month by one, wrapping to January if the month is December.
-   */
-  month& operator++(month&);
-
-  /**
-   * Decrements month by one, wrapping to December if the month is January.
-   */
-  month& operator--(month&);
-
-  /**
-   * Increments month by one, wrapping to January if the month is December.
-   */
-  month operator++(month&, int);
-
-  /**
-   * Decrements month by one, wrapping to December if the month is January.
-   */
-  month operator--(month&, int);
+  month operator-(const month&, int);
+  month& operator-=(month&, int);
 
   /**
    * Increments month by given amount of months.
    */
-  month operator+(const month&, int);
+  inline month operator+(const month& original, int delta)
+  {
+    if (delta >= 0)
+    {
+      int result = static_cast<int>(original);
+
+      for (int i = 0; i < delta; ++i)
+      {
+        result = result < 11 ? result + 1 : 0;
+      }
+
+      return static_cast<month>(result);
+    }
+
+    return original - (-delta);
+  }
 
   /**
    * Decrements month by given amount of months.
    */
-  month operator-(const month&, int);
+  inline month operator-(const month& original, int delta)
+  {
+    if (delta >= 0)
+    {
+      int result = static_cast<int>(original);
+
+      for (int i = 0; i < delta; ++i)
+      {
+        result = result > 0 ? result - 1 : 11;
+      }
+
+      return static_cast<month>(result);
+    }
+
+    return original + (-delta);
+  }
 
   /**
    * Adds given number of months into the month.
    */
-  month& operator+=(month&, int);
+  inline month& operator+=(month& original, int delta)
+  {
+    int result = static_cast<int>(original);
+
+    for (int i = 0; i < delta; ++i)
+    {
+      result = result < 11 ? result + 1 : 0;
+    }
+
+    return original = static_cast<month>(result);
+  }
 
   /**
    * Substracts given number of months from the month.
    */
-  month& operator-=(month&, int);
+  inline month& operator-=(month& original, int delta)
+  {
+    int result = static_cast<int>(original);
+
+    for (int i = 0; i < delta; ++i)
+    {
+      result = result > 0 ? result - 1 : 11;
+    }
+
+    return original = static_cast<month>(result);
+  }
 
   /**
-   * Writes name of the month (in English) into the stream.
+   * Increments month by one, wrapping to January if the month is December.
    */
-  std::ostream& operator<<(std::ostream&, const month&);
+  inline month& operator++(month& original)
+  {
+    return original += 1;
+  }
+
+  /**
+   * Decrements month by one, wrapping to December if the month is January.
+   */
+  inline month& operator--(month& original)
+  {
+    return original -= 1;
+  }
+
+  /**
+   * Increments month by one, wrapping to January if the month is December.
+   */
+  inline month operator++(month& original, int)
+  {
+    const month return_value = original;
+
+    original += 1;
+
+    return return_value;
+  }
+
+  /**
+   * Decrements month by one, wrapping to December if the month is January.
+   */
+  inline month operator--(month& original, int)
+  {
+    const month return_value = original;
+
+    original -= 1;
+
+    return return_value;
+  }
+
+  /**
+   * Returns name of the month (in English) into the stream.
+   */
+  inline std::string to_string(const enum month& month)
+  {
+    switch (month)
+    {
+      case month::jan:
+        return "January";
+
+      case month::feb:
+        return "February";
+
+      case month::mar:
+        return "March";
+
+      case month::apr:
+        return "April";
+
+      case month::may:
+        return "May";
+
+      case month::jun:
+        return "June";
+
+      case month::jul:
+        return "July";
+
+      case month::aug:
+        return "August";
+
+      case month::sep:
+        return "September";
+
+      case month::oct:
+        return "October";
+
+      case month::nov:
+        return "November";
+
+      case month::dec:
+        return "December";
+    }
+
+    return "Unknown";
+  }
 }
 
 #endif /* !PEELO_CHRONO_MONTH_HPP_GUARD */

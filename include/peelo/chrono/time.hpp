@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, peelo.net
+ * Copyright (c) 2016-2019, peelo.net
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,10 +26,18 @@
 #ifndef PEELO_CHRONO_TIME_HPP_GUARD
 #define PEELO_CHRONO_TIME_HPP_GUARD
 
-#include <iostream>
+#include <ctime>
+#include <stdexcept>
 #include <string>
+#if defined(_WIN32)
+# define WIN32_LEAN_AND_MEAN
+# include <windows.h>
+#endif
+#if !defined(BUFSIZ)
+# define BUFSIZ 1024
+#endif
 
-namespace peelo
+namespace peelo::chrono
 {
   /**
    * Time value based on 24 hour clock.
@@ -46,12 +54,24 @@ namespace peelo
      * \throw std::invalid_argument If given values cannot be used to construct
      *                              valid time
      */
-    explicit time(int hour = 0, int minute = 0, int second = 0);
+    explicit time(int hour = 0, int minute = 0, int second = 0)
+      : m_hour(hour)
+      , m_minute(minute)
+      , m_second(second)
+    {
+      if (!is_valid(hour, minute, second))
+      {
+        throw std::invalid_argument("invalid time value");
+      }
+    }
 
     /**
      * Copy constructor.
      */
-    time(const time& that);
+    time(const time& that)
+      : m_hour(that.m_hour)
+      , m_minute(that.m_minute)
+      , m_second(that.m_second) {}
 
     /**
      * Returns current time based on system clock.
@@ -59,7 +79,32 @@ namespace peelo
      * \throw std::runtime_error If current time cannot be extracted from the
      *                           system for some reason
      */
-    static time now();
+    static time now()
+    {
+      time result;
+
+#if defined(_WIN32)
+      SYSTEMTIME lt;
+
+      ::GetLocalTime(&lt);
+      result.m_hour = lt.wHour;
+      result.m_minute = lt.wMinute;
+      result.m_second = lt.wSecond;
+#else
+      auto ts = std::time(nullptr);
+      auto tm = std::localtime(&ts);
+
+      if (!tm)
+      {
+        throw std::runtime_error("localtime() failed");
+      }
+      result.m_hour = tm->tm_hour;
+      result.m_minute = tm->tm_min;
+      result.m_second = tm->tm_sec;
+#endif
+
+      return result;
+    }
 
     /**
      * Tests whether given values are valid time.
@@ -70,7 +115,12 @@ namespace peelo
      * \return       A boolean flag indicating whether an valid time can be
      *               constructed from given values
      */
-    static bool is_valid(int hour, int minute, int second);
+    static inline bool is_valid(int hour, int minute, int second)
+    {
+      return (hour >= 0 && hour <= 23)
+        && (minute >= 0 && minute <= 59)
+        && (second >= 0 && second <= 59);
+    }
 
     /**
      * Returns hour of the day (from 0 to 23).
@@ -99,14 +149,28 @@ namespace peelo
     /**
      * Uses strftime() function to format the time into a string.
      */
-    std::string format(const std::string& format) const;
+    std::string format(const std::string& format) const
+    {
+      char buffer[BUFSIZ];
+      auto tm = make_tm(*this);
+
+      if (std::strftime(buffer, BUFSIZ, format.c_str(), &tm) == 0)
+      {
+        throw std::runtime_error("strftime() failed");
+      }
+
+      return buffer;
+    }
 
     /**
      * Assigns values from another time into this one.
      *
      * \param that Other time to copy values from
      */
-    time& assign(const time& that);
+    inline time& assign(const time& that)
+    {
+      return assign(that.m_hour, that.m_minute, that.m_second);
+    }
 
     /**
      * Replaces values of the time with given values.
@@ -117,7 +181,18 @@ namespace peelo
      * \throw std::invalid_argument If given values do not construct a valid
      *                              time
      */
-    time& assign(int hour, int minute, int second);
+    time& assign(int hour, int minute, int second)
+    {
+      if (!is_valid(hour, minute, second))
+      {
+        throw std::invalid_argument("invalid time value");
+      }
+      m_hour = hour;
+      m_minute = minute;
+      m_second = second;
+
+      return *this;
+    }
 
     /**
      * Assignment operator.
@@ -132,7 +207,10 @@ namespace peelo
      *
      * \param that Other time value to test equality with
      */
-    bool equals(const time& that) const;
+    inline bool equals(const time& that) const
+    {
+      return equals(that.m_hour, that.m_minute, that.m_second);
+    }
 
     /**
      * Tests whether this time has given values.
@@ -143,7 +221,10 @@ namespace peelo
      * \return       A boolean flag indicating whether this time has given
      *               values or not
      */
-    bool equals(int hour, int minute, int second) const;
+    inline bool equals(int hour, int minute, int second) const
+    {
+      return hour == m_hour && m_minute == minute && m_second == second;
+    }
 
     /**
      * Equality testing operator.
@@ -167,7 +248,10 @@ namespace peelo
      * \param that Other time to compare this one against
      * \return     Integer value indicating comparison result
      */
-    int compare(const time& that) const;
+    inline int compare(const time& that) const
+    {
+      return compare(that.m_hour, that.m_minute, that.m_second);
+    }
 
     /**
      * Compares time against given values.
@@ -177,7 +261,23 @@ namespace peelo
      * \param second Second of the minute
      * \return       Integer value indicating comparison result
      */
-    int compare(int hour, int minute, int second) const;
+    int compare(int hour, int minute, int second) const
+    {
+      if (m_hour != hour)
+      {
+        return m_hour > hour ? 1 : -1;
+      }
+      else if (m_minute != minute)
+      {
+        return m_minute > minute ? 1 : -1;
+      }
+      else if (m_second != second)
+      {
+        return m_second > second ? 1 : -1;
+      } else {
+        return 0;
+      }
+    }
 
     /**
      * Comparison operator.
@@ -214,42 +314,185 @@ namespace peelo
     /**
      * Increments time by one second.
      */
-    time& operator++();
+    time& operator++()
+    {
+      if (++m_second >= 60)
+      {
+        m_second = 0;
+        if (++m_minute >= 60)
+        {
+          m_minute = 0;
+          if (++m_hour >= 24)
+          {
+            m_hour = 0;
+          }
+        }
+      }
+
+      return *this;
+    }
 
     /**
      * Increments time by one second.
      */
-    time operator++(int);
+    time operator++(int)
+    {
+      const time return_value(*this);
+
+      if (++m_second >= 60)
+      {
+        m_second = 0;
+        if (++m_minute >= 60)
+        {
+          m_minute = 0;
+          if (++m_hour >= 24)
+          {
+            m_hour = 0;
+          }
+        }
+      }
+
+      return return_value;
+    }
 
     /**
      * Decrements time by one second.
      */
-    time& operator--();
+    time& operator--()
+    {
+      if (--m_second < 0)
+      {
+        m_second = 59;
+        if (--m_minute < 0)
+        {
+          m_minute = 59;
+          if (--m_hour < 0)
+          {
+            m_hour = 23;
+          }
+        }
+      }
+
+      return *this;
+    }
 
     /**
      * Decrements time by one second.
      */
-    time operator--(int);
+    time operator--(int)
+    {
+      const time return_value(*this);
+
+      if (--m_second < 0)
+      {
+        m_second = 59;
+        if (--m_minute < 0)
+        {
+          m_minute = 59;
+          if (--m_hour < 0)
+          {
+            m_hour = 23;
+          }
+        }
+      }
+
+      return return_value;
+    }
 
     /**
      * Adds given number of seconds to the time and returns result.
      */
-    time operator+(int seconds) const;
+    inline time operator+(int seconds) const
+    {
+      return time(*this) += seconds;
+    }
 
     /**
      * Substracts given number of seconds from the time and returns result.
      */
-    time operator-(int seconds) const;
+    inline time operator-(int seconds) const
+    {
+      return time(*this) -= seconds;
+    }
 
     /**
      * Adds given number of seconds to the time.
      */
-    time& operator+=(int seconds);
+    time& operator+=(int seconds)
+    {
+      int second = ((m_hour * 60 * 60) + (m_minute * 60) + m_second) + seconds;
+      int minute;
+      int hour;
+
+      normalize(second, minute, hour);
+      if (!is_valid(hour, minute, second))
+      {
+        throw std::invalid_argument("invalid time value");
+      }
+      m_hour = hour;
+      m_minute = minute;
+      m_second = second;
+
+      return *this;
+    }
 
     /**
      * Substracts given number of seconds from the time.
      */
-    time& operator-=(int seconds);
+    time& operator-=(int seconds)
+    {
+      int second = ((m_hour * 60 * 60) + (m_minute * 60) + m_second) - seconds;
+      int minute;
+      int hour;
+
+      normalize(second, minute, hour);
+      if (!is_valid(hour, minute, second))
+      {
+        throw std::invalid_argument("invalid time value");
+      }
+      m_hour = hour;
+      m_minute = minute;
+      m_second = second;
+
+      return *this;
+    }
+
+  private:
+    static void normalize(int& second, int& minute, int& hour)
+    {
+      static const int seconds_per_minute = 60;
+      static const int seconds_per_hour = seconds_per_minute * 60;
+      static const int seconds_per_day = seconds_per_hour * 24;
+
+      while (second > seconds_per_day)
+      {
+        second -= seconds_per_day;
+      }
+      hour = second / seconds_per_hour;
+      if (hour > 0)
+      {
+        second -= hour * seconds_per_hour;
+      }
+      minute = second / seconds_per_minute;
+      if (minute > 0)
+      {
+        second -= minute * seconds_per_minute;
+      }
+    }
+
+    static std::tm make_tm(const class time& time)
+    {
+      std::tm tm = {0};
+
+      tm.tm_year = 90;
+      tm.tm_mon = 0;
+      tm.tm_mday = 1;
+      tm.tm_hour = time.hour();
+      tm.tm_min = time.minute();
+      tm.tm_sec = time.second();
+
+      return tm;
+    }
 
   private:
     /** Hour of the day. */
@@ -261,10 +504,13 @@ namespace peelo
   };
 
   /**
-   * Writes textual presentation of the time into the stream in RFC 2822
+   * Returns textual presentation of the time into the stream in RFC 2822
    * compliant format.
    */
-  std::ostream& operator<<(std::ostream&, const time&);
+  inline std::string to_string(const class time& time)
+  {
+    return time.format("%T");
+  }
 }
 
 #endif /* !PEELO_CHRONO_TIME_HPP_GUARD */

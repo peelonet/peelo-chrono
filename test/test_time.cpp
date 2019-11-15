@@ -1,19 +1,11 @@
 #include <peelo/chrono/time.hpp>
 #include <cassert>
-#include <sstream>
-
-static std::string time_to_string(const peelo::time& time)
-{
-  std::stringstream ss;
-
-  ss << time;
-
-  return ss.str();
-}
 
 int main()
 {
-  peelo::time time = peelo::time(0, 0, 0);
+  using namespace peelo;
+
+  chrono::time time(0, 0, 0);
 
   assert(time.hour() == 0);
   assert(time.minute() == 0);
@@ -38,11 +30,11 @@ int main()
   assert(time.equals(22, 59, 0));
 
   assert(time.format("%H:%M:%S") == "22:59:00");
-  assert(time_to_string(time) == "22:59:00");
+  assert(chrono::to_string(time) == "22:59:00");
 
-  const auto now = peelo::time::now();
+  const auto now = chrono::time::now();
 
-  assert(peelo::time::is_valid(now.hour(), now.minute(), now.second()));
+  assert(chrono::time::is_valid(now.hour(), now.minute(), now.second()));
 
   return 0;
 }
