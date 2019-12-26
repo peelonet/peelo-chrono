@@ -24,7 +24,7 @@ int main()
 
   assert(date.format("%d.%m.%Y") == "21.07.1969");
   assert(chrono::to_string(date) == "21 Jul 1969");
-  assert(chrono::date(1986, chrono::month::sep, 27) - date == 6277);
+  assert((chrono::date(1986, chrono::month::sep, 27) - date).days() == 6277);
 
   const auto today = chrono::date::today();
 

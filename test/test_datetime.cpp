@@ -28,7 +28,12 @@ int main()
 
   assert(dt + 5 == chrono::datetime(1969, chrono::month::jul, 27, 2, 56, 0));
   assert(dt - 5 == chrono::datetime(1969, chrono::month::jul, 17, 2, 56, 0));
-  assert(dt - chrono::datetime(1969, chrono::month::jul, 22, 2, 50, 0) == 360);
+  assert(
+    (
+      dt -
+      chrono::datetime(1969, chrono::month::jul, 22, 2, 50, 0)
+    ).seconds() == 360
+  );
 
   assert(dt.format("%d.%m.%Y %H:%M:%S") == "22.07.1969 02:56:00");
   assert(chrono::to_string(dt) == "Sun, 22 Jul 1969 02:56:00 +0000");
