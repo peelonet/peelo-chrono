@@ -554,16 +554,16 @@ namespace peelo::chrono
     }
 
     /**
-     * Returns the difference (in seconds) between two datetimes.
+     * Returns the difference between two datetimes.
      */
-    int operator-(const datetime& that) const
+    duration operator-(const datetime& that) const
     {
       auto tm1 = make_tm(*this);
       auto tm2 = make_tm(that);
       const auto time1 = std::mktime(&tm1);
       const auto time2 = std::mktime(&tm2);
 
-      return static_cast<int>(std::difftime(time1, time2));
+      return duration(std::difftime(time1, time2));
     }
 
   private:

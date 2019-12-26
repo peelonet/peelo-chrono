@@ -26,13 +26,13 @@
 #ifndef PEELO_CHRONO_DATE_HPP_GUARD
 #define PEELO_CHRONO_DATE_HPP_GUARD
 
-#include <cstdint>
 #include <ctime>
 #include <stdexcept>
 #if !defined(BUFSIZ)
 #  define BUFSIZ 1024
 #endif
 
+#include <peelo/chrono/duration.hpp>
 #include <peelo/chrono/month.hpp>
 #include <peelo/chrono/weekday.hpp>
 
@@ -719,19 +719,17 @@ namespace peelo::chrono
     }
 
     /**
-     * Returns the difference (in days) between two dates.
+     * Returns the difference between two dates.
      */
-    int operator-(const date& that) const
+    duration operator-(const date& that) const
     {
-      static const int seconds_per_day = 86400;
-
       auto tm1 = make_tm(*this);
       auto tm2 = make_tm(that);
       const auto time1 = std::mktime(&tm1);
       const auto time2 = std::mktime(&tm2);
       const auto difference = std::difftime(time1, time2);
 
-      return difference / seconds_per_day;
+      return duration(difference);
     }
 
   private:
