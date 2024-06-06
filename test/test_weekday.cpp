@@ -16,5 +16,8 @@ int main()
   assert(chrono::to_string(chrono::weekday::mon) == "Monday");
   assert(chrono::to_string(chrono::weekday::fri) == "Friday");
 
+  assert(chrono::to_u32string(chrono::weekday::mon) == U"Monday");
+  assert(chrono::to_u32string(chrono::weekday::fri) == U"Friday");
+
   return 0;
 }

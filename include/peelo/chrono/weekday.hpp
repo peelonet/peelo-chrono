@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, peelo.net
+ * Copyright (c) 2016-2024, peelo.net
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,8 +23,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef PEELO_CHRONO_WEEKDAY_HPP_GUARD
-#define PEELO_CHRONO_WEEKDAY_HPP_GUARD
+#pragma once
 
 #include <string>
 
@@ -176,7 +175,7 @@ namespace peelo::chrono
   }
 
   /**
-   * Returns full name of the weekday (in English) to the stream.
+   * Returns full name of the weekday (in English) as string.
    */
   inline std::string to_string(const weekday& day)
   {
@@ -206,6 +205,36 @@ namespace peelo::chrono
 
     return "Unknown";
   }
-}
 
-#endif /* !PEELO_CHRONO_WEEKDAY_HPP_GUARD */
+  /**
+   * Returns full name of the weekday (in English) as Unicode string.
+   */
+  inline std::u32string to_u32string(const weekday& day)
+  {
+    switch (day)
+    {
+      case weekday::sun:
+        return U"Sunday";
+
+      case weekday::mon:
+        return U"Monday";
+
+      case weekday::tue:
+        return U"Tuesday";
+
+      case weekday::wed:
+        return U"Wednesday";
+
+      case weekday::thu:
+        return U"Thursday";
+
+      case weekday::fri:
+        return U"Friday";
+
+      case weekday::sat:
+        return U"Saturday";
+    }
+
+    return U"Unknown";
+  }
+}

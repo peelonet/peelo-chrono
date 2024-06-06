@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, peelo.net
+ * Copyright (c) 2016-2024, peelo.net
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,8 +23,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef PEELO_CHRONO_DATETIME_HPP_GUARD
-#define PEELO_CHRONO_DATETIME_HPP_GUARD
+#pragma once
 
 #include <peelo/chrono/date.hpp>
 #include <peelo/chrono/time.hpp>
@@ -68,9 +67,12 @@ namespace peelo::chrono
     /**
      * Copy constructor.
      */
-    datetime(const datetime& that)
-      : m_date(that.m_date)
-      , m_time(that.m_time) {}
+    datetime(const datetime&) = default;
+
+    /**
+     * Move constructor.
+     */
+    datetime(datetime&&) = default;
 
     /**
      * Constructs datetime from given date and time.
@@ -87,8 +89,9 @@ namespace peelo::chrono
      */
     static datetime now()
     {
-      auto ts = std::time(nullptr);
-      auto tm = std::localtime(&ts);
+      const auto now = std::chrono::system_clock::now();
+      const auto ts = std::chrono::system_clock::to_time_t(now);
+      const auto tm = std::localtime(&ts);
 
       if (!tm || tm->tm_mon < 0 || tm->tm_mon > 11)
       {
@@ -331,10 +334,12 @@ namespace peelo::chrono
     /**
      * Assignment operator.
      */
-    inline datetime& operator=(const datetime& that)
-    {
-      return assign(that);
-    }
+    datetime& operator=(const datetime&) = default;
+
+    /**
+     * Move constructor.
+     */
+    datetime& operator=(datetime&&) = default;
 
     /**
      * Tests whether two datetimes are equal.
@@ -597,5 +602,3 @@ namespace peelo::chrono
     return datetime.format(datetime::format_rfc2822);
   }
 }
-
-#endif /* !PEELO_CHRONO_DATETIME_HPP_GUARD */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, peelo.net
+ * Copyright (c) 2016-2024, peelo.net
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,9 +23,9 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef PEELO_CHRONO_DATE_HPP_GUARD
-#define PEELO_CHRONO_DATE_HPP_GUARD
+#pragma once
 
+#include <chrono>
 #include <ctime>
 #include <stdexcept>
 #if !defined(BUFSIZ)
@@ -71,10 +71,12 @@ namespace peelo::chrono
     /**
      * Copy constructor.
      */
-    date(const date& that)
-      : m_year(that.m_year)
-      , m_month(that.m_month)
-      , m_day(that.m_day) {}
+    date(const date&) = default;
+
+    /**
+     * Move constructor.
+     */
+    date(date&&) = default;
 
     /**
      * Returns current date based on system clock.
@@ -84,8 +86,9 @@ namespace peelo::chrono
      */
     static date today()
     {
-      auto ts = std::time(nullptr);
-      auto tm = std::localtime(&ts);
+      const auto now = std::chrono::system_clock::now();
+      const auto ts = std::chrono::system_clock::to_time_t(now);
+      const auto tm = std::localtime(&ts);
 
       if (!tm || tm->tm_mon < 0 || tm->tm_mon > 11)
       {
@@ -413,10 +416,12 @@ namespace peelo::chrono
     /**
      * Assignment operator.
      */
-    inline date& operator=(const date& that)
-    {
-      return assign(that);
-    }
+    date& operator=(const date&) = default;
+
+    /**
+     * Move operator.
+     */
+    date& operator=(date&&) = default;
 
     /**
      * Tests whether two dates are equal or not.
@@ -765,5 +770,3 @@ namespace peelo::chrono
     return date.format("%d %b %Y");
   }
 }
-
-#endif /* !PEELO_CHRONO_DATE_HPP_GUARD */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, peelo.net
+ * Copyright (c) 2016-2024, peelo.net
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,8 +23,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef PEELO_CHRONO_MONTH_HPP_GUARD
-#define PEELO_CHRONO_MONTH_HPP_GUARD
+#pragma once
 
 #include <string>
 
@@ -177,7 +176,7 @@ namespace peelo::chrono
   }
 
   /**
-   * Returns name of the month (in English) into the stream.
+   * Returns name of the month (in English) as string.
    */
   inline std::string to_string(const enum month& month)
   {
@@ -222,6 +221,51 @@ namespace peelo::chrono
 
     return "Unknown";
   }
-}
 
-#endif /* !PEELO_CHRONO_MONTH_HPP_GUARD */
+  /**
+   * Returns name of the month (in English) as Unicode string.
+   */
+  inline std::u32string to_u32string(const enum month& month)
+  {
+    switch (month)
+    {
+      case month::jan:
+        return U"January";
+
+      case month::feb:
+        return U"February";
+
+      case month::mar:
+        return U"March";
+
+      case month::apr:
+        return U"April";
+
+      case month::may:
+        return U"May";
+
+      case month::jun:
+        return U"June";
+
+      case month::jul:
+        return U"July";
+
+      case month::aug:
+        return U"August";
+
+      case month::sep:
+        return U"September";
+
+      case month::oct:
+        return U"October";
+
+      case month::nov:
+        return U"November";
+
+      case month::dec:
+        return U"December";
+    }
+
+    return U"Unknown";
+  }
+}

@@ -15,5 +15,8 @@ int main()
   assert(chrono::to_string(chrono::month::jan) == "January");
   assert(chrono::to_string(chrono::month::oct) == "October");
 
+  assert(chrono::to_u32string(chrono::month::jan) == U"January");
+  assert(chrono::to_u32string(chrono::month::oct) == U"October");
+
   return 0;
 }

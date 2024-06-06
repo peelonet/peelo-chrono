@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, peelo.net
+ * Copyright (c) 2016-2024, peelo.net
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,16 +23,13 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef PEELO_CHRONO_TIME_HPP_GUARD
-#define PEELO_CHRONO_TIME_HPP_GUARD
+#pragma once
 
+#include <chrono>
 #include <ctime>
 #include <stdexcept>
 #include <string>
-#if defined(_WIN32)
-# define WIN32_LEAN_AND_MEAN
-# include <windows.h>
-#endif
+
 #if !defined(BUFSIZ)
 # define BUFSIZ 1024
 #endif
@@ -68,10 +65,12 @@ namespace peelo::chrono
     /**
      * Copy constructor.
      */
-    time(const time& that)
-      : m_hour(that.m_hour)
-      , m_minute(that.m_minute)
-      , m_second(that.m_second) {}
+    time(const time&) = default;
+
+    /**
+     * Move constructor.
+     */
+    time(time&&) = default;
 
     /**
      * Returns current time based on system clock.
@@ -81,29 +80,16 @@ namespace peelo::chrono
      */
     static time now()
     {
-      time result;
-
-#if defined(_WIN32)
-      SYSTEMTIME lt;
-
-      ::GetLocalTime(&lt);
-      result.m_hour = lt.wHour;
-      result.m_minute = lt.wMinute;
-      result.m_second = lt.wSecond;
-#else
-      auto ts = std::time(nullptr);
-      auto tm = std::localtime(&ts);
+      const auto now = std::chrono::system_clock::now();
+      const auto ts = std::chrono::system_clock::to_time_t(now);
+      const auto tm = std::localtime(&ts);
 
       if (!tm)
       {
         throw std::runtime_error("localtime() failed");
       }
-      result.m_hour = tm->tm_hour;
-      result.m_minute = tm->tm_min;
-      result.m_second = tm->tm_sec;
-#endif
 
-      return result;
+      return time(tm->tm_hour, tm->tm_min, tm->tm_sec);
     }
 
     /**
@@ -197,10 +183,12 @@ namespace peelo::chrono
     /**
      * Assignment operator.
      */
-    inline time& operator=(const time& that)
-    {
-      return assign(that);
-    }
+    time& operator=(const time&) = default;
+
+    /**
+     * Move constructor.
+     */
+    time& operator=(time&&) = default;
 
     /**
      * Tests whether two time values are equal.
@@ -512,5 +500,3 @@ namespace peelo::chrono
     return time.format("%T");
   }
 }
-
-#endif /* !PEELO_CHRONO_TIME_HPP_GUARD */
