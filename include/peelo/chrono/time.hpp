@@ -26,13 +26,14 @@
 #pragma once
 
 #include <chrono>
-#include <ctime>
 #include <stdexcept>
 #include <string>
 
 #if !defined(BUFSIZ)
 # define BUFSIZ 1024
 #endif
+
+#include <peelo/chrono/_utils.hpp>
 
 namespace peelo::chrono
 {
@@ -82,14 +83,9 @@ namespace peelo::chrono
     {
       const auto now = std::chrono::system_clock::now();
       const auto ts = std::chrono::system_clock::to_time_t(now);
-      const auto tm = std::localtime(&ts);
+      const auto result = utils::localtime(ts);
 
-      if (!tm)
-      {
-        throw std::runtime_error("localtime() failed");
-      }
-
-      return time(tm->tm_hour, tm->tm_min, tm->tm_sec);
+      return time(result.tm_hour, result.tm_min, result.tm_sec);
     }
 
     /**
