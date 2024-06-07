@@ -1,0 +1,93 @@
+Start testing: Jun 07 12:58 EEST
+----------------------------------------------------------
+1/6 Testing: test_date
+1/6 Test: test_date
+Command: "/home/rauli/project/peelo-chrono/build/test/test_date"
+Directory: /home/rauli/project/peelo-chrono/build/test
+"test_date" start time: Jun 07 12:58 EEST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"test_date" end time: Jun 07 12:58 EEST
+"test_date" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/6 Testing: test_datetime
+2/6 Test: test_datetime
+Command: "/home/rauli/project/peelo-chrono/build/test/test_datetime"
+Directory: /home/rauli/project/peelo-chrono/build/test
+"test_datetime" start time: Jun 07 12:58 EEST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"test_datetime" end time: Jun 07 12:58 EEST
+"test_datetime" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/6 Testing: test_duration
+3/6 Test: test_duration
+Command: "/home/rauli/project/peelo-chrono/build/test/test_duration"
+Directory: /home/rauli/project/peelo-chrono/build/test
+"test_duration" start time: Jun 07 12:58 EEST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"test_duration" end time: Jun 07 12:58 EEST
+"test_duration" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/6 Testing: test_month
+4/6 Test: test_month
+Command: "/home/rauli/project/peelo-chrono/build/test/test_month"
+Directory: /home/rauli/project/peelo-chrono/build/test
+"test_month" start time: Jun 07 12:58 EEST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"test_month" end time: Jun 07 12:58 EEST
+"test_month" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/6 Testing: test_time
+5/6 Test: test_time
+Command: "/home/rauli/project/peelo-chrono/build/test/test_time"
+Directory: /home/rauli/project/peelo-chrono/build/test
+"test_time" start time: Jun 07 12:58 EEST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"test_time" end time: Jun 07 12:58 EEST
+"test_time" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/6 Testing: test_weekday
+6/6 Test: test_weekday
+Command: "/home/rauli/project/peelo-chrono/build/test/test_weekday"
+Directory: /home/rauli/project/peelo-chrono/build/test
+"test_weekday" start time: Jun 07 12:58 EEST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"test_weekday" end time: Jun 07 12:58 EEST
+"test_weekday" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Jun 07 12:58 EEST

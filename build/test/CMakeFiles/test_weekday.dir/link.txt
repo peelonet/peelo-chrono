@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/test_weekday.dir/test_weekday.cpp.o -o test_weekday 
