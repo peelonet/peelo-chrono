@@ -26,12 +26,13 @@
 #pragma once
 
 #include <chrono>
-#include <ctime>
 #include <stdexcept>
+
 #if !defined(BUFSIZ)
 #  define BUFSIZ 1024
 #endif
 
+#include <peelo/chrono/_utils.hpp>
 #include <peelo/chrono/duration.hpp>
 #include <peelo/chrono/month.hpp>
 #include <peelo/chrono/weekday.hpp>
@@ -88,17 +89,12 @@ namespace peelo::chrono
     {
       const auto now = std::chrono::system_clock::now();
       const auto ts = std::chrono::system_clock::to_time_t(now);
-      const auto tm = std::localtime(&ts);
-
-      if (!tm || tm->tm_mon < 0 || tm->tm_mon > 11)
-      {
-        throw std::runtime_error("localtime() failed");
-      }
+      const auto result = utils::localtime(ts);
 
       return date(
-        tm->tm_year + 1900,
-        static_cast<enum month>(tm->tm_mon),
-        tm->tm_mday
+        result.tm_year + 1900,
+        static_cast<enum month>(result.tm_mon),
+        result.tm_mday
       );
     }
 
@@ -156,18 +152,13 @@ namespace peelo::chrono
      */
     static date timestamp(long timestamp)
     {
-      auto ts = static_cast<std::time_t>(timestamp);
-      auto tm = std::localtime(&ts);
-
-      if (!tm || tm->tm_mon < 0 || tm->tm_mon > 11)
-      {
-        throw std::runtime_error("localtime() failed");
-      }
+      const auto ts = static_cast<std::time_t>(timestamp);
+      const auto result = utils::localtime(ts);
 
       return date(
-        tm->tm_year + 1900,
-        static_cast<enum month>(tm->tm_mon),
-        tm->tm_mday
+        result.tm_year + 1900,
+        static_cast<enum month>(result.tm_mon),
+        result.tm_mday
       );
     }
 
