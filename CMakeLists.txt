@@ -2,7 +2,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.12)
 
 PROJECT(
   PeeloChrono
-  VERSION 0.3.0
+  VERSION 0.4.0
   DESCRIPTION "Header only minimal C++ Gregorian calendar implementation."
   HOMEPAGE_URL "https://github.com/peelonet/peelo-chrono"
   LANGUAGES CXX
@@ -64,12 +64,14 @@ INSTALL(
     ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake
 )
 
-INSTALL(
-  DIRECTORY
-    ${PROJECT_SOURCE_DIR}/include/peelo
-  DESTINATION
-    include
-)
+IF(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+  INSTALL(
+    DIRECTORY
+      ${PROJECT_SOURCE_DIR}/include/peelo
+    DESTINATION
+      include
+  )
 
-ENABLE_TESTING()
-ADD_SUBDIRECTORY(test)
+  ENABLE_TESTING()
+  ADD_SUBDIRECTORY(test)
+ENDIF()
