@@ -214,7 +214,7 @@ namespace peelo::chrono
       {
         throw std::runtime_error("mktime() failed");
       }
-      else if (tm.tm_wday < 0 && tm.tm_wday > 6)
+      else if (tm.tm_wday < 0 || tm.tm_wday > 6)
       {
         throw std::runtime_error("unable to determine day of week");
       }
