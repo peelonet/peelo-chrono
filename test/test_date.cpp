@@ -27,6 +27,8 @@
 
 #include "peelo/chrono/date.hpp"
 
+#include "./test_environment.hpp"
+
 using namespace peelo;
 
 static const chrono::date date(1969, chrono::month::jul, 21);

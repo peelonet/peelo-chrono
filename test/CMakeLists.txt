@@ -49,5 +49,5 @@ foreach(TEST_FILENAME ${TEST_SOURCES})
   add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
 endforeach()
 
-# Stable local time / %z for strftime-based formatting tests.
-set_property(TEST test_datetime PROPERTY ENVIRONMENT "TZ=UTC")
+# POSIX: TZ is read by the child; MSVC still needs _tzset() in test_environment.hpp.
+set_tests_properties(test_date test_datetime PROPERTIES ENVIRONMENT "TZ=UTC")
