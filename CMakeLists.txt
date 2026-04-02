@@ -1,31 +1,31 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.12)
+cmake_minimum_required(VERSION 3.6)
 
-PROJECT(
+project(
   PeeloChrono
-  VERSION 0.4.0
+  VERSION 1.0.0
   DESCRIPTION "Header only minimal C++ Gregorian calendar implementation."
   HOMEPAGE_URL "https://github.com/peelonet/peelo-chrono"
   LANGUAGES CXX
 )
 
-INCLUDE(GNUInstallDirs)
+include(GNUInstallDirs)
 
-ADD_LIBRARY(${PROJECT_NAME} INTERFACE)
+add_library(${PROJECT_NAME} INTERFACE)
 
-TARGET_INCLUDE_DIRECTORIES(
+target_include_directories(
   ${PROJECT_NAME}
   INTERFACE
     $<BUILD_INTERFACE:${${PROJECT_NAME}_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-TARGET_COMPILE_FEATURES(
+target_compile_features(
   ${PROJECT_NAME}
   INTERFACE
     cxx_std_17
 )
 
-INSTALL(
+install(
   TARGETS
     ${PROJECT_NAME}
   EXPORT
@@ -38,22 +38,22 @@ INSTALL(
     ${CMAKE_INSTALL_BINDIR}
 )
 
-INCLUDE(CMakePackageConfigHelpers)
-WRITE_BASIC_PACKAGE_VERSION_FILE(
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
   "${PROJECT_NAME}ConfigVersion.cmake"
   VERSION
     ${PROJECT_VERSION}
   COMPATIBILITY
     SameMajorVersion
 )
-CONFIGURE_PACKAGE_CONFIG_FILE(
+configure_package_config_file(
   "${PROJECT_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in"
   "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
   INSTALL_DESTINATION
     ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake
 )
 
-INSTALL(
+install(
   EXPORT
     ${PROJECT_NAME}_Targets
   FILE
@@ -64,14 +64,14 @@ INSTALL(
     ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake
 )
 
-IF(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
-  INSTALL(
+if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+  install(
     DIRECTORY
       ${PROJECT_SOURCE_DIR}/include/peelo
     DESTINATION
       include
   )
 
-  ENABLE_TESTING()
-  ADD_SUBDIRECTORY(test)
-ENDIF()
+  enable_testing()
+  add_subdirectory(test)
+endif()
