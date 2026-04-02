@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2024, peelo.net
+ * Copyright (c) 2016-2026, peelo.net
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,6 +26,7 @@
 #pragma once
 
 #include <chrono>
+#include <ctime>
 #include <stdexcept>
 
 #if !defined(BUFSIZ)
@@ -45,6 +46,11 @@ namespace peelo::chrono
   class date
   {
   public:
+    /**
+     * Format string for RFC 2822 compliant date and time format.
+     */
+    static constexpr const char* format_rfc2822 = "%d %b %Y";
+
     /**
      * Constructs a date from given values.
      *
@@ -201,25 +207,15 @@ namespace peelo::chrono
     }
 
     /**
-     * Returns week of day for this date.
-     *
-     * \throw runtime_error If day of the week cannot be determined for some
-     *                      system specific reason
+     * Returns week of day for this date (proleptic Gregorian calendar).
      */
     weekday day_of_week() const
     {
-      auto tm = make_tm(*this);
-
-      if (std::mktime(&tm) == -1)
-      {
-        throw std::runtime_error("mktime() failed");
-      }
-      else if (tm.tm_wday < 0 || tm.tm_wday > 6)
-      {
-        throw std::runtime_error("unable to determine day of week");
-      }
-
-      return static_cast<enum weekday>(tm.tm_wday);
+      return static_cast<enum weekday>(utils::weekday_sun0_from_ymd(
+        m_year,
+        static_cast<int>(m_month) + 1,
+        m_day
+      ));
     }
 
     /**
@@ -362,9 +358,23 @@ namespace peelo::chrono
     std::string format(const std::string& format) const
     {
       char buffer[BUFSIZ];
-      auto tm = make_tm(*this);
+      std::tm tm = {};
 
-      if (std::strftime(buffer, BUFSIZ, format.c_str(), &tm) == 0)
+      tm.tm_year = m_year - 1900;
+      tm.tm_mon = static_cast<int>(m_month);
+      tm.tm_mday = m_day;
+      tm.tm_hour = 0;
+      tm.tm_min = 0;
+      tm.tm_sec = 0;
+      tm.tm_wday = utils::weekday_sun0_from_ymd(
+        m_year,
+        static_cast<int>(m_month) + 1,
+        m_day
+      );
+      tm.tm_yday = day_of_year() - 1;
+      tm.tm_isdst = -1;
+
+      if (!std::strftime(buffer, BUFSIZ, format.c_str(), &tm))
       {
         throw std::runtime_error("strftime() failed");
       }
@@ -619,24 +629,22 @@ namespace peelo::chrono
      */
     date operator+(int days) const
     {
-      auto tm = make_tm(*this);
+      date result(*this);
 
       if (days > 0)
       {
-        tm.tm_mday += days;
+        for (int i = 0; i < days; ++i)
+        {
+          ++result;
+        }
       } else {
-        tm.tm_mday -= -days;
-      }
-      if (std::mktime(&tm) == -1 || tm.tm_mon < 0 || tm.tm_mon > 11)
-      {
-        throw std::runtime_error("mktime() failed");
+        for (int i = 0; i < -days; ++i)
+        {
+          --result;
+        }
       }
 
-      return date(
-        tm.tm_year + 1900,
-        static_cast<enum month>(tm.tm_mon),
-        tm.tm_mday
-      );
+      return result;
     }
 
     /**
@@ -644,24 +652,7 @@ namespace peelo::chrono
      */
     date operator-(int days) const
     {
-      auto tm = make_tm(*this);
-
-      if (days > 0)
-      {
-        tm.tm_mday -= days;
-      } else {
-        tm.tm_mday += -days;
-      }
-      if (std::mktime(&tm) == -1 || tm.tm_mon < 0 || tm.tm_mon > 11)
-      {
-        throw std::runtime_error("mktime() failed");
-      }
-
-      return date(
-        tm.tm_year + 1900,
-        static_cast<enum month>(tm.tm_mon),
-        tm.tm_mday
-      );
+      return *this + (-days);
     }
 
     /**
@@ -669,24 +660,19 @@ namespace peelo::chrono
      */
     date& operator+=(int days)
     {
-      auto tm = make_tm(*this);
-
       if (days > 0)
       {
-        tm.tm_mday += days;
+        for (int i = 0; i < days; ++i)
+        {
+          ++*this;
+        }
       } else {
-        tm.tm_mday -= -days;
+        for (int i = 0; i < -days; ++i)
+        {
+          --*this;
+        }
       }
-      if (std::mktime(&tm) == -1 || tm.tm_mon < 0 || tm.tm_mon > 11)
-      {
-        throw std::runtime_error("mktime() failed");
-      }
-
-      return assign(
-        tm.tm_year - 1900,
-        static_cast<enum month>(tm.tm_mon),
-        tm.tm_mday
-      );
+      return *this;
     }
 
     /**
@@ -694,24 +680,7 @@ namespace peelo::chrono
      */
     date& operator-=(int days)
     {
-      auto tm = make_tm(*this);
-
-      if (days > 0)
-      {
-        tm.tm_mday -= days;
-      } else {
-        tm.tm_mday += -days;
-      }
-      if (std::mktime(&tm) == -1 || tm.tm_mon < 0 || tm.tm_mon > 11)
-      {
-        throw std::runtime_error("mktime() failed");
-      }
-
-      return assign(
-        tm.tm_year - 1900,
-        static_cast<enum month>(tm.tm_mon),
-        tm.tm_mday
-      );
+      return *this += (-days);
     }
 
     /**
@@ -719,28 +688,28 @@ namespace peelo::chrono
      */
     duration operator-(const date& that) const
     {
-      auto tm1 = make_tm(*this);
-      auto tm2 = make_tm(that);
-      const auto time1 = std::mktime(&tm1);
-      const auto time2 = std::mktime(&tm2);
-      const auto difference = std::difftime(time1, time2);
+      int sign = 1;
+      date x;
+      const date* target = nullptr;
+      std::int64_t days = 0;
 
-      return duration(difference);
-    }
+      if (compare(that) >= 0)
+      {
+        x = that;
+        target = this;
+        sign = 1;
+      } else {
+        x = *this;
+        target = &that;
+        sign = -1;
+      }
+      while (x != *target)
+      {
+        ++x;
+        ++days;
+      }
 
-  private:
-    static std::tm make_tm(const class date& date)
-    {
-      std::tm tm = {0};
-
-      tm.tm_year = date.year() - 1900;
-      tm.tm_mon = static_cast<int>(date.month());
-      tm.tm_mday = date.day();
-      tm.tm_hour = 0;
-      tm.tm_min = 0;
-      tm.tm_sec = 0;
-
-      return tm;
+      return duration::of_days(sign * days);
     }
 
   private:
@@ -758,6 +727,6 @@ namespace peelo::chrono
    */
   inline std::string to_string(const class date& date)
   {
-    return date.format("%d %b %Y");
+    return date.format(date::format_rfc2822);
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2024, peelo.net
+ * Copyright (c) 2016-2026, peelo.net
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -263,7 +263,7 @@ namespace peelo::chrono
     std::string format(const std::string& format) const
     {
       char buffer[BUFSIZ];
-      auto tm = make_tm(*this);
+      const auto tm = make_tm();
 
       if (!std::strftime(buffer, BUFSIZ, format.c_str(), &tm))
       {
@@ -553,25 +553,27 @@ namespace peelo::chrono
      */
     duration operator-(const datetime& that) const
     {
-      auto tm1 = make_tm(*this);
-      auto tm2 = make_tm(that);
-      const auto time1 = std::mktime(&tm1);
-      const auto time2 = std::mktime(&tm2);
-
-      return duration(std::difftime(time1, time2));
+      return duration(timestamp() - that.timestamp());
     }
 
   private:
-    static std::tm make_tm(const datetime& dt)
+    std::tm make_tm() const
     {
-      std::tm tm = {0};
+      std::tm tm = {};
 
-      tm.tm_year = dt.year() - 1900;
-      tm.tm_mon = static_cast<int>(dt.month());
-      tm.tm_mday = dt.day();
-      tm.tm_hour = dt.hour();
-      tm.tm_min = dt.minute();
-      tm.tm_sec = dt.second();
+      tm.tm_year = year() - 1900;
+      tm.tm_mon = static_cast<int>(month());
+      tm.tm_mday = day();
+      tm.tm_hour = hour();
+      tm.tm_min = minute();
+      tm.tm_sec = second();
+      tm.tm_wday = utils::weekday_sun0_from_ymd(
+        year(),
+        static_cast<int>(month()) + 1,
+        day()
+      );
+      tm.tm_yday = day_of_year() - 1;
+      tm.tm_isdst = -1;
 
       return tm;
     }

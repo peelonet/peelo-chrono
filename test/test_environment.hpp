@@ -23,31 +23,32 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include <catch2/catch_test_macros.hpp>
+#pragma once
 
-#include "peelo/chrono/weekday.hpp"
+#include <clocale>
 
-using namespace peelo;
-
-TEST_CASE("Conversion to integer")
+namespace peelo::chrono::test
 {
-  REQUIRE(static_cast<int>(chrono::weekday::mon) == 1);
-  REQUIRE(static_cast<int>(chrono::weekday::sun) == 0);
-}
+  /**
+   * strftime() uses LC_TIME for %a / %b. Force the "C" locale so abbreviated
+   * weekday and month names match the assertions on all platforms.
+   */
+  inline void init_chrono_test_environment()
+  {
+    std::setlocale(LC_TIME, "C");
+  }
 
-TEST_CASE("Addition and substraction")
-{
-  REQUIRE(chrono::weekday::mon + 3 == chrono::weekday::thu);
-  REQUIRE(chrono::weekday::sat - 2 == chrono::weekday::thu);
-  REQUIRE(chrono::weekday::mon + 8 == chrono::weekday::tue);
-  REQUIRE(chrono::weekday::sat - 11 == chrono::weekday::tue);
-}
+  namespace detail
+  {
+    struct chrono_test_env_installer
+    {
+      chrono_test_env_installer()
+      {
+        init_chrono_test_environment();
+      }
+    };
+  }
 
-TEST_CASE("Conversion to string")
-{
-  REQUIRE(chrono::to_string(chrono::weekday::mon) == "Monday");
-  REQUIRE(chrono::to_string(chrono::weekday::fri) == "Friday");
-
-  REQUIRE(chrono::to_u32string(chrono::weekday::mon) == U"Monday");
-  REQUIRE(chrono::to_u32string(chrono::weekday::fri) == U"Friday");
+  /** Include this header so the constructor runs before tests (one .cpp per exe). */
+  [[maybe_unused]] inline const detail::chrono_test_env_installer g_chrono_test_env{};
 }

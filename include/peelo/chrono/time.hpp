@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2024, peelo.net
+ * Copyright (c) 2016-2026, peelo.net
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,6 +43,11 @@ namespace peelo::chrono
   class time
   {
   public:
+    /**
+     * Format string for RFC 2822 compliant date and time format.
+     */
+    static constexpr const char* format_rfc2822 = "%T";
+
     /**
      * Constructs new instance of time from given values.
      *
@@ -493,6 +498,6 @@ namespace peelo::chrono
    */
   inline std::string to_string(const class time& time)
   {
-    return time.format("%T");
+    return time.format(time::format_rfc2822);
   }
 }

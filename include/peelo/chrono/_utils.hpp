@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2024, peelo.net
+ * Copyright (c) 2016-2026, peelo.net
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,26 @@
 
 namespace peelo::chrono::utils
 {
+  /**
+   * Proleptic Gregorian weekday for a civil date (1 = January … 12 = December).
+   * Result matches `tm_wday`: 0 = Sunday … 6 = Saturday.
+   *
+   * Implemented without `std::mktime`, which is unreliable on MSVC for many
+   * historical dates (often returns failure for times before 1970).
+   */
+  inline int weekday_sun0_from_ymd(int year, int month_1_12, int day)
+  {
+    static const int t[] = {0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4};
+    int y = year;
+
+    y -= month_1_12 < 3;
+
+    const int w =
+      (y + y / 4 - y / 100 + y / 400 + t[month_1_12 - 1] + day) % 7;
+
+    return (w + 7) % 7;
+  }
+
   /**
    * Thread safe (at least on most platforms) version of `std::localtime`.
    */
