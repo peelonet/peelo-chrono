@@ -1,4 +1,13 @@
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}../include)
+include(FetchContent)
+
+FetchContent_Declare(
+  Catch2
+  GIT_REPOSITORY
+    https://github.com/catchorg/Catch2.git
+  GIT_TAG
+    v3.7.1
+)
+FetchContent_MakeAvailable(Catch2)
 
 file(GLOB TEST_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 foreach(TEST_FILENAME ${TEST_SOURCES})
@@ -33,8 +42,12 @@ foreach(TEST_FILENAME ${TEST_SOURCES})
 
   target_link_libraries(
     ${TEST_NAME}
+    Catch2::Catch2WithMain
     PeeloChrono
   )
 
   add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
 endforeach()
+
+# Stable local time / %z for strftime-based formatting tests.
+set_property(TEST test_datetime PROPERTY ENVIRONMENT "TZ=UTC")

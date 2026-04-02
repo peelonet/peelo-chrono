@@ -1,23 +1,53 @@
-#include <peelo/chrono/weekday.hpp>
-#include <cassert>
+/*
+ * Copyright (c) 2016-2026, peelo.net
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * * Redistributions of source code must retain the above copyright notice, this
+ *   list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright notice,
+ *   this list of conditions and the following disclaimer in the documentation
+ *   and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+#include <catch2/catch_test_macros.hpp>
 
-int main()
+#include "peelo/chrono/weekday.hpp"
+
+using namespace peelo;
+
+TEST_CASE("Conversion to integer")
 {
-  using namespace peelo;
+  REQUIRE(static_cast<int>(chrono::weekday::mon) == 1);
+  REQUIRE(static_cast<int>(chrono::weekday::sun) == 0);
+}
 
-  assert(static_cast<int>(chrono::weekday::mon) == 1);
-  assert(static_cast<int>(chrono::weekday::sun) == 0);
+TEST_CASE("Addition and substraction")
+{
+  REQUIRE(chrono::weekday::mon + 3 == chrono::weekday::thu);
+  REQUIRE(chrono::weekday::sat - 2 == chrono::weekday::thu);
+  REQUIRE(chrono::weekday::mon + 8 == chrono::weekday::tue);
+  REQUIRE(chrono::weekday::sat - 11 == chrono::weekday::tue);
+}
 
-  assert(chrono::weekday::mon + 3 == chrono::weekday::thu);
-  assert(chrono::weekday::sat - 2 == chrono::weekday::thu);
-  assert(chrono::weekday::mon + 8 == chrono::weekday::tue);
-  assert(chrono::weekday::sat - 11 == chrono::weekday::tue);
+TEST_CASE("Conversion to string")
+{
+  REQUIRE(chrono::to_string(chrono::weekday::mon) == "Monday");
+  REQUIRE(chrono::to_string(chrono::weekday::fri) == "Friday");
 
-  assert(chrono::to_string(chrono::weekday::mon) == "Monday");
-  assert(chrono::to_string(chrono::weekday::fri) == "Friday");
-
-  assert(chrono::to_u32string(chrono::weekday::mon) == U"Monday");
-  assert(chrono::to_u32string(chrono::weekday::fri) == U"Friday");
-
-  return 0;
+  REQUIRE(chrono::to_u32string(chrono::weekday::mon) == U"Monday");
+  REQUIRE(chrono::to_u32string(chrono::weekday::fri) == U"Friday");
 }

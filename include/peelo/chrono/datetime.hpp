@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2024, peelo.net
+ * Copyright (c) 2016-2026, peelo.net
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -572,6 +572,10 @@ namespace peelo::chrono
       tm.tm_hour = dt.hour();
       tm.tm_min = dt.minute();
       tm.tm_sec = dt.second();
+      if (std::mktime(&tm) == -1)
+      {
+        throw std::runtime_error("mktime() failed");
+      }
 
       return tm;
     }

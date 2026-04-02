@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2024, peelo.net
+ * Copyright (c) 2016-2026, peelo.net
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,6 +45,11 @@ namespace peelo::chrono
   class date
   {
   public:
+    /**
+     * Format string for RFC 2822 compliant date and time format.
+     */
+    static constexpr const char* format_rfc2822 = "%d %b %Y";
+
     /**
      * Constructs a date from given values.
      *
@@ -363,6 +368,11 @@ namespace peelo::chrono
     {
       char buffer[BUFSIZ];
       auto tm = make_tm(*this);
+
+      if (std::mktime(&tm) == -1)
+      {
+        throw std::runtime_error("mktime() failed");
+      }
 
       if (std::strftime(buffer, BUFSIZ, format.c_str(), &tm) == 0)
       {
@@ -758,6 +768,6 @@ namespace peelo::chrono
    */
   inline std::string to_string(const class date& date)
   {
-    return date.format("%d %b %Y");
+    return date.format(date::format_rfc2822);
   }
 }
