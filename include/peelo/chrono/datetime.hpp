@@ -557,8 +557,9 @@ namespace peelo::chrono
       auto tm2 = make_tm(that);
       const auto time1 = std::mktime(&tm1);
       const auto time2 = std::mktime(&tm2);
+      const auto result = std::difftime(time1, time2);
 
-      return duration(std::difftime(time1, time2));
+      return duration(static_cast<duration::value_type>(result));
     }
 
   private:

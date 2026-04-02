@@ -735,7 +735,7 @@ namespace peelo::chrono
       const auto time2 = std::mktime(&tm2);
       const auto difference = std::difftime(time1, time2);
 
-      return duration(difference);
+      return duration(static_cast<duration::value_type>(difference));
     }
 
   private:
