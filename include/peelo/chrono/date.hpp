@@ -68,11 +68,13 @@ namespace peelo::chrono
       : m_year(year)
       , m_month(month)
       , m_day(day)
+      , m_ordinal(0)
     {
       if (!is_valid(year, month, day))
       {
         throw std::invalid_argument("invalid date value");
       }
+      m_ordinal = ordinal_from_ymd(m_year, m_month, m_day);
     }
 
     /**
@@ -314,42 +316,9 @@ namespace peelo::chrono
     /**
      * Calculates UNIX timestamp from date.
      */
-    std::int64_t timestamp() const
+    inline std::int64_t timestamp() const
     {
-      static const int seconds_per_day = 86400;
-      static const int days_before_month[12] =
-      {
-        0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334
-      };
-      // Compute days in a year.
-      auto days = (
-        (static_cast<std::int64_t>(m_day) - 1) +
-        (days_before_month[static_cast<int>(m_month) - 1])
-      );
-
-      // Leap year adjustment.
-      if (m_month > month::jan && is_leap_year())
-      {
-        ++days;
-      }
-
-      // Compute days from other years.
-      if (m_year > 1970)
-      {
-        for (int year = 1970; year < m_year; ++year)
-        {
-          days += days_in_year(year);
-        }
-      }
-      else if (m_year < 1970)
-      {
-        for (int year = 1969; year >= m_year; --year)
-        {
-          days -= days_in_year(year);
-        }
-      }
-
-      return days * seconds_per_day;
+      return m_ordinal * duration::seconds_per_day;
     }
 
     /**
@@ -389,7 +358,12 @@ namespace peelo::chrono
      */
     inline date& assign(const date& that)
     {
-      return assign(that.m_year, that.m_month, that.m_day);
+      m_year = that.m_year;
+      m_month = that.m_month;
+      m_day = that.m_day;
+      m_ordinal = that.m_ordinal;
+
+      return *this;
     }
 
     /**
@@ -410,6 +384,7 @@ namespace peelo::chrono
       m_year = year;
       m_month = month;
       m_day = day;
+      m_ordinal = ordinal_from_ymd(m_year, m_month, m_day);
 
       return *this;
     }
@@ -486,17 +461,15 @@ namespace peelo::chrono
      */
     int compare(int year, const enum month& month, int day) const
     {
-      if (m_year != year)
+      const auto that_ordinal = ordinal_from_ymd(year, month, day);
+
+      if (m_ordinal > that_ordinal)
       {
-        return m_year > year ? 1 : -1;
+        return 1;
       }
-      else if (m_month != month)
+      else if (m_ordinal < that_ordinal)
       {
-        return m_month > month ? 1 : -1;
-      }
-      else if (m_day != day)
-      {
-        return m_day > day ? 1 : -1;
+        return -1;
       } else {
         return 0;
       }
@@ -539,19 +512,8 @@ namespace peelo::chrono
      */
     date& operator++()
     {
-      if (m_day == days_in_month())
-      {
-        m_day = 1;
-        if (m_month == month::dec)
-        {
-          m_month = month::jan;
-          ++m_year;
-        } else {
-          ++m_month;
-        }
-      } else {
-        ++m_day;
-      }
+      ++m_ordinal;
+      sync_ymd_from_ordinal();
 
       return *this;
     }
@@ -563,19 +525,8 @@ namespace peelo::chrono
     {
       const date return_value = date(*this);
 
-      if (m_day == days_in_month())
-      {
-        m_day = 1;
-        if (m_month == month::dec)
-        {
-          m_month = month::jan;
-          ++m_year;
-        } else {
-          ++m_month;
-        }
-      } else {
-        ++m_day;
-      }
+      ++m_ordinal;
+      sync_ymd_from_ordinal();
 
       return return_value;
     }
@@ -585,18 +536,8 @@ namespace peelo::chrono
      */
     date& operator--()
     {
-      if (m_day > 1)
-      {
-        --m_day;
-      }
-      else if (m_month == month::jan)
-      {
-        --m_year;
-        m_month = month::dec;
-        m_day = 31;
-      } else {
-        m_day = days_in_month(--m_month, m_year);
-      }
+      --m_ordinal;
+      sync_ymd_from_ordinal();
 
       return *this;
     }
@@ -608,18 +549,8 @@ namespace peelo::chrono
     {
       const date return_value = date(*this);
 
-      if (m_day > 1)
-      {
-        --m_day;
-      }
-      else if (m_month == month::jan)
-      {
-        --m_year;
-        m_month = month::dec;
-        m_day = 31;
-      } else {
-        m_day = days_in_month(--m_month, m_year);
-      }
+      --m_ordinal;
+      sync_ymd_from_ordinal();
 
       return return_value;
     }
@@ -630,19 +561,8 @@ namespace peelo::chrono
     date operator+(int days) const
     {
       date result(*this);
-
-      if (days > 0)
-      {
-        for (int i = 0; i < days; ++i)
-        {
-          ++result;
-        }
-      } else {
-        for (int i = 0; i < -days; ++i)
-        {
-          --result;
-        }
-      }
+      result.m_ordinal += days;
+      result.sync_ymd_from_ordinal();
 
       return result;
     }
@@ -660,18 +580,9 @@ namespace peelo::chrono
      */
     date& operator+=(int days)
     {
-      if (days > 0)
-      {
-        for (int i = 0; i < days; ++i)
-        {
-          ++*this;
-        }
-      } else {
-        for (int i = 0; i < -days; ++i)
-        {
-          --*this;
-        }
-      }
+      m_ordinal += days;
+      sync_ymd_from_ordinal();
+
       return *this;
     }
 
@@ -688,37 +599,43 @@ namespace peelo::chrono
      */
     duration operator-(const date& that) const
     {
-      int sign = 1;
-      date x;
-      const date* target = nullptr;
-      std::int64_t days = 0;
-
-      if (compare(that) >= 0)
-      {
-        x = that;
-        target = this;
-        sign = 1;
-      } else {
-        x = *this;
-        target = &that;
-        sign = -1;
-      }
-      while (x != *target)
-      {
-        ++x;
-        ++days;
-      }
-
-      return duration::of_days(sign * days);
+      return duration::of_days(m_ordinal - that.m_ordinal);
     }
 
   private:
+    static std::int64_t ordinal_from_ymd(
+      int year,
+      const enum month& month,
+      int day
+    )
+    {
+      return utils::days_from_civil(
+        year,
+        static_cast<unsigned>(month) + 1u,
+        static_cast<unsigned>(day)
+      );
+    }
+
+    void sync_ymd_from_ordinal()
+    {
+      int year = 0;
+      unsigned month = 0;
+      unsigned day = 0;
+
+      utils::civil_from_days(m_ordinal, year, month, day);
+      m_year = year;
+      m_month = static_cast<enum month>(month - 1u);
+      m_day = static_cast<int>(day);
+    }
+
     /** Year of the date. */
     int m_year;
     /** Month of the year. */
     enum month m_month;
     /** Day of the month. */
     int m_day;
+    /** Cached proleptic Gregorian days since 1970-01-01. */
+    std::int64_t m_ordinal;
   };
 
   /**

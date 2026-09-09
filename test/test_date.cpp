@@ -41,7 +41,7 @@ TEST_CASE("Basic accessor methods")
   REQUIRE(date.day_of_week() == chrono::weekday::mon);
   REQUIRE(date.day_of_year() == 202);
   REQUIRE(date.days_in_month() == 31);
-  REQUIRE(date.timestamp() == -16761600L);
+  REQUIRE(date.timestamp() == -14169600L);
 }
 
 TEST_CASE("Equality and comparison methods")
