@@ -37,19 +37,19 @@ namespace peelo::chrono
   public:
     using value_type = std::int64_t;
 
-    static const value_type hours_per_day = 24;
-    static const value_type minutes_per_hour = 60;
-    static const value_type minutes_per_day = 1440;
-    static const value_type seconds_per_minute = 60;
-    static const value_type seconds_per_hour = 3600;
-    static const value_type seconds_per_day = 86400;
+    static constexpr value_type hours_per_day = 24;
+    static constexpr value_type minutes_per_hour = 60;
+    static constexpr value_type minutes_per_day = 1440;
+    static constexpr value_type seconds_per_minute = 60;
+    static constexpr value_type seconds_per_hour = 3600;
+    static constexpr value_type seconds_per_day = 86400;
 
     /**
      * Constructs new duration instance which spans given number of seconds.
      *
      * \param seconds Seconds of the duration.
      */
-    explicit duration(value_type seconds = 0)
+    constexpr explicit duration(value_type seconds = 0)
       : m_seconds(seconds) {}
 
     /**
@@ -57,7 +57,7 @@ namespace peelo::chrono
      *
      * \param days Number of days in the duration.
      */
-    static inline duration of_days(value_type days)
+    static constexpr duration of_days(value_type days)
     {
       return duration(days * seconds_per_day);
     }
@@ -67,7 +67,7 @@ namespace peelo::chrono
      *
      * \param hours Number of hours in the duration.
      */
-    static inline duration of_hours(value_type hours)
+    static constexpr duration of_hours(value_type hours)
     {
       return duration(hours * seconds_per_hour);
     }
@@ -77,7 +77,7 @@ namespace peelo::chrono
      *
      * \param minutes Number of minutes in the duration.
      */
-    static inline duration of_minutes(value_type minutes)
+    static constexpr duration of_minutes(value_type minutes)
     {
       return duration(minutes * seconds_per_minute);
     }
@@ -95,7 +95,7 @@ namespace peelo::chrono
     /**
      * Returns the number of days in the duration.
      */
-    inline value_type days() const
+    constexpr value_type days() const
     {
       return m_seconds / seconds_per_day;
     }
@@ -173,7 +173,7 @@ namespace peelo::chrono
      * \return     A boolean flag indicating whether the two durations are
      *             equal or not.
      */
-    inline bool equals(const duration& that) const
+    constexpr bool equals(const duration& that) const
     {
       return m_seconds == that.m_seconds;
     }
@@ -193,7 +193,7 @@ namespace peelo::chrono
     /**
      * Equality testing operator.
      */
-    inline bool operator==(const duration& that) const
+    constexpr bool operator==(const duration& that) const
     {
       return equals(that);
     }

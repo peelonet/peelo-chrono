@@ -80,12 +80,44 @@ namespace peelo::chrono
     /**
      * Copy constructor.
      */
-    date(const date&) = default;
+    constexpr date(const date&) = default;
 
     /**
      * Move constructor.
      */
     date(date&&) = default;
+
+    /**
+     * Constructs a date without runtime validation.
+     *
+     * The caller must ensure that \p year, \p month, and \p day form a valid
+     * calendar date. Intended for compile-time use with \c constexpr and
+     * \c static_assert.
+     */
+    static constexpr date from_ymd(int year, enum month month, int day)
+    {
+      return date(
+        year,
+        month,
+        day,
+        ordinal_from_ymd(year, month, day)
+      );
+    }
+
+    /**
+     * Constructs a date from proleptic Gregorian days since 1970-01-01.
+     */
+    static constexpr date from_ordinal(std::int64_t ordinal)
+    {
+      const auto civil = utils::civil_from_days(ordinal);
+
+      return date(
+        civil.year,
+        static_cast<enum month>(civil.month - 1u),
+        static_cast<int>(civil.day),
+        ordinal
+      );
+    }
 
     /**
      * Returns current date based on system clock.
@@ -179,7 +211,7 @@ namespace peelo::chrono
      * \return      A boolean flag indicating whether an valid date can be
      *              constructed from given values
      */
-    static inline bool is_valid(int year, const enum month& month, int day)
+    static constexpr bool is_valid(int year, const enum month& month, int day)
     {
       return day > 0 && day <= days_in_month(month, is_leap_year(year));
     }
@@ -187,7 +219,7 @@ namespace peelo::chrono
     /**
      * Returns year of the date.
      */
-    inline int year() const
+    constexpr int year() const
     {
       return m_year;
     }
@@ -195,7 +227,7 @@ namespace peelo::chrono
     /**
      * Returns month of the year.
      */
-    inline const enum month& month() const
+    constexpr const enum month& month() const
     {
       return m_month;
     }
@@ -203,7 +235,7 @@ namespace peelo::chrono
     /**
      * Returns day of the month (from 1 to 31) of the date.
      */
-    inline int day() const
+    constexpr int day() const
     {
       return m_day;
     }
@@ -211,7 +243,7 @@ namespace peelo::chrono
     /**
      * Returns week of day for this date (proleptic Gregorian calendar).
      */
-    weekday day_of_week() const
+    constexpr weekday day_of_week() const
     {
       return static_cast<enum weekday>(utils::weekday_sun0_from_ymd(
         m_year,
@@ -224,23 +256,16 @@ namespace peelo::chrono
      * Returns the day of the year (from 1 to 365 or 366 on leap years) for
      * this date.
      */
-    int day_of_year() const
+    constexpr int day_of_year() const
     {
-      const bool leap_year = is_leap_year();
-      int result = 0;
-
-      for (enum month i = month::jan; i < m_month; ++i)
-      {
-        result += days_in_month(i, leap_year);
-      }
-
-      return result + m_day;
+      return days_before_month(static_cast<int>(m_month), is_leap_year())
+        + m_day;
     }
 
     /**
      * Returns the number of days in the month (28-31) for this date.
      */
-    inline int days_in_month() const
+    constexpr int days_in_month() const
     {
       return days_in_month(m_month, is_leap_year());
     }
@@ -251,7 +276,7 @@ namespace peelo::chrono
      * \param month     Month to retrieve number of days for
      * \param leap_year Whether the year is leap year or not
      */
-    static int days_in_month(const enum month& month, bool leap_year)
+    static constexpr int days_in_month(const enum month& month, bool leap_year)
     {
       switch (month)
       {
@@ -279,7 +304,7 @@ namespace peelo::chrono
     /**
      * Returns the number of days in the year (365 or 366) for this date.
      */
-    inline int days_in_year() const
+    constexpr int days_in_year() const
     {
       return days_in_year(m_year);
     }
@@ -289,7 +314,7 @@ namespace peelo::chrono
      *
      * \param year Year to retrieve number of days for
      */
-    static inline int days_in_year(int year)
+    static constexpr int days_in_year(int year)
     {
       return is_leap_year(year) ? 366 : 365;
     }
@@ -298,7 +323,7 @@ namespace peelo::chrono
      * Returns <code>true</code> if the year represented by the date is a leap
      * year.
      */
-    inline bool is_leap_year() const
+    constexpr bool is_leap_year() const
     {
       return is_leap_year(m_year);
     }
@@ -308,7 +333,7 @@ namespace peelo::chrono
      *
      * \param year Year to test for leap year
      */
-    static inline bool is_leap_year(int year)
+    static constexpr bool is_leap_year(int year)
     {
       return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
     }
@@ -316,7 +341,7 @@ namespace peelo::chrono
     /**
      * Calculates UNIX timestamp from date.
      */
-    inline std::int64_t timestamp() const
+    constexpr std::int64_t timestamp() const
     {
       return m_ordinal * duration::seconds_per_day;
     }
@@ -405,9 +430,9 @@ namespace peelo::chrono
      * \param that Another date to compare this one with
      * \return     A boolean flag indicating whether the dates are equal or not
      */
-    inline bool equals(const date& that) const
+    constexpr bool equals(const date& that) const
     {
-      return equals(that.m_year, that.m_month, that.m_day);
+      return m_ordinal == that.m_ordinal;
     }
 
     /**
@@ -419,15 +444,15 @@ namespace peelo::chrono
      * \return      A boolean flag indicating whether this date has given
      *              values or not
      */
-    inline bool equals(int year, const enum month& month, int day) const
+    constexpr bool equals(int year, const enum month& month, int day) const
     {
-      return m_year == year && m_month == month && m_day == day;
+      return m_ordinal == ordinal_from_ymd(year, month, day);
     }
 
     /**
      * Equality testing operator.
      */
-    inline bool operator==(const date& that) const
+    constexpr bool operator==(const date& that) const
     {
       return equals(that);
     }
@@ -435,7 +460,7 @@ namespace peelo::chrono
     /**
      * Non-equality testing operator.
      */
-    inline bool operator!=(const date& that) const
+    constexpr bool operator!=(const date& that) const
     {
       return !equals(that);
     }
@@ -446,7 +471,7 @@ namespace peelo::chrono
      * \param that Other date to compare this one against
      * \return     Integer value indicating comparison result
      */
-    inline int compare(const date& that) const
+    constexpr int compare(const date& that) const
     {
       return compare(that.m_year, that.m_month, that.m_day);
     }
@@ -459,7 +484,7 @@ namespace peelo::chrono
      * \param day   Day of the month
      * \return      Integer value indicating comparison result
      */
-    int compare(int year, const enum month& month, int day) const
+    constexpr int compare(int year, const enum month& month, int day) const
     {
       const auto that_ordinal = ordinal_from_ymd(year, month, day);
 
@@ -478,7 +503,7 @@ namespace peelo::chrono
     /**
      * Comparison operator.
      */
-    inline bool operator<(const date& that) const
+    constexpr bool operator<(const date& that) const
     {
       return compare(that) < 0;
     }
@@ -486,7 +511,7 @@ namespace peelo::chrono
     /**
      * Comparison operator.
      */
-    inline bool operator>(const date& that) const
+    constexpr bool operator>(const date& that) const
     {
       return compare(that) > 0;
     }
@@ -494,7 +519,7 @@ namespace peelo::chrono
     /**
      * Comparison operator.
      */
-    inline bool operator<=(const date& that) const
+    constexpr bool operator<=(const date& that) const
     {
       return compare(that) <= 0;
     }
@@ -502,7 +527,7 @@ namespace peelo::chrono
     /**
      * Comparison operator.
      */
-    inline bool operator>=(const date& that) const
+    constexpr bool operator>=(const date& that) const
     {
       return compare(that) >= 0;
     }
@@ -510,7 +535,7 @@ namespace peelo::chrono
     /**
      * Increments date by one day.
      */
-    date& operator++()
+    constexpr date& operator++()
     {
       ++m_ordinal;
       sync_ymd_from_ordinal();
@@ -521,7 +546,7 @@ namespace peelo::chrono
     /**
      * Increments date by one day.
      */
-    date operator++(int)
+    constexpr date operator++(int)
     {
       const date return_value = date(*this);
 
@@ -534,7 +559,7 @@ namespace peelo::chrono
     /**
      * Decrements date by one day.
      */
-    date& operator--()
+    constexpr date& operator--()
     {
       --m_ordinal;
       sync_ymd_from_ordinal();
@@ -545,7 +570,7 @@ namespace peelo::chrono
     /**
      * Decrements date by one day.
      */
-    date operator--(int)
+    constexpr date operator--(int)
     {
       const date return_value = date(*this);
 
@@ -558,27 +583,23 @@ namespace peelo::chrono
     /**
      * Adds given number of days to the date and returns result.
      */
-    date operator+(int days) const
+    constexpr date operator+(int days) const
     {
-      date result(*this);
-      result.m_ordinal += days;
-      result.sync_ymd_from_ordinal();
-
-      return result;
+      return from_ordinal(m_ordinal + days);
     }
 
     /**
      * Substracts given number of days from the date and returns result.
      */
-    date operator-(int days) const
+    constexpr date operator-(int days) const
     {
-      return *this + (-days);
+      return from_ordinal(m_ordinal - days);
     }
 
     /**
      * Adds given number of days to the date.
      */
-    date& operator+=(int days)
+    constexpr date& operator+=(int days)
     {
       m_ordinal += days;
       sync_ymd_from_ordinal();
@@ -589,7 +610,7 @@ namespace peelo::chrono
     /**
      * Substracts given number of days from the date.
      */
-    date& operator-=(int days)
+    constexpr date& operator-=(int days)
     {
       return *this += (-days);
     }
@@ -597,13 +618,35 @@ namespace peelo::chrono
     /**
      * Returns the difference between two dates.
      */
-    duration operator-(const date& that) const
+    constexpr duration operator-(const date& that) const
     {
       return duration::of_days(m_ordinal - that.m_ordinal);
     }
 
   private:
-    static std::int64_t ordinal_from_ymd(
+    constexpr date(
+      int year,
+      enum month month,
+      int day,
+      std::int64_t ordinal
+    )
+      : m_year(year)
+      , m_month(month)
+      , m_day(day)
+      , m_ordinal(ordinal) {}
+
+    static constexpr int days_before_month(int month_index, bool leap_year)
+    {
+      constexpr int base[12] =
+      {
+        0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334
+      };
+
+      return base[month_index]
+        + (month_index > static_cast<int>(month::feb) && leap_year ? 1 : 0);
+    }
+
+    static constexpr std::int64_t ordinal_from_ymd(
       int year,
       const enum month& month,
       int day
@@ -616,16 +659,12 @@ namespace peelo::chrono
       );
     }
 
-    void sync_ymd_from_ordinal()
+    constexpr void sync_ymd_from_ordinal()
     {
-      int year = 0;
-      unsigned month = 0;
-      unsigned day = 0;
-
-      utils::civil_from_days(m_ordinal, year, month, day);
-      m_year = year;
-      m_month = static_cast<enum month>(month - 1u);
-      m_day = static_cast<int>(day);
+      const auto civil = utils::civil_from_days(m_ordinal);
+      m_year = civil.year;
+      m_month = static_cast<enum month>(civil.month - 1u);
+      m_day = static_cast<int>(civil.day);
     }
 
     /** Year of the date. */

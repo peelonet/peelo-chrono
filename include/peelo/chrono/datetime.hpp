@@ -67,7 +67,7 @@ namespace peelo::chrono
     /**
      * Copy constructor.
      */
-    datetime(const datetime&) = default;
+    constexpr datetime(const datetime&) = default;
 
     /**
      * Move constructor.
@@ -77,9 +77,30 @@ namespace peelo::chrono
     /**
      * Constructs datetime from given date and time.
      */
-    datetime(const class date& date, const class time& time)
+    constexpr datetime(const class date& date, const class time& time)
       : m_date(date)
       , m_time(time) {}
+
+    /**
+     * Constructs a datetime without runtime validation.
+     *
+     * The caller must ensure that the arguments form a valid date and time.
+     * Intended for compile-time use with \c constexpr and \c static_assert.
+     */
+    static constexpr datetime from_ymd_hms(
+      int year,
+      enum month month,
+      int day,
+      int hour,
+      int minute,
+      int second
+    )
+    {
+      return datetime(
+        date::from_ymd(year, month, day),
+        time::from_hms(hour, minute, second)
+      );
+    }
 
     /**
      * Returns current date and time based on system clock.
@@ -133,7 +154,7 @@ namespace peelo::chrono
      * \return       A boolean flag indicating whether valid date and time can
      *               be constructed from given values
      */
-    static inline bool is_valid(
+    static constexpr bool is_valid(
       int year,
       const enum month& month,
       int day,
@@ -149,7 +170,7 @@ namespace peelo::chrono
     /**
      * Returns date value.
      */
-    inline const class date& date() const
+    constexpr const class date& date() const
     {
       return m_date;
     }
@@ -157,7 +178,7 @@ namespace peelo::chrono
     /**
      * Returns year of the date.
      */
-    inline int year() const
+    constexpr int year() const
     {
       return m_date.year();
     }
@@ -165,7 +186,7 @@ namespace peelo::chrono
     /**
      * Returns month of the year.
      */
-    inline const enum month& month() const
+    constexpr const enum month& month() const
     {
       return m_date.month();
     }
@@ -173,7 +194,7 @@ namespace peelo::chrono
     /**
      * Returns day of the month (from 1 to 31) of the date.
      */
-    inline int day() const
+    constexpr int day() const
     {
       return m_date.day();
     }
@@ -181,7 +202,7 @@ namespace peelo::chrono
     /**
      * Returns day of the week for this date.
      */
-    inline weekday day_of_week() const
+    constexpr weekday day_of_week() const
     {
       return m_date.day_of_week();
     }
@@ -190,7 +211,7 @@ namespace peelo::chrono
      * Returns the day of the year (from 1 to 365 or 366 on leap years) for
      * this date.
      */
-    inline int day_of_year() const
+    constexpr int day_of_year() const
     {
       return m_date.day_of_year();
     }
@@ -198,7 +219,7 @@ namespace peelo::chrono
     /**
      * Returns the number of days in the year (365 or 366) for this date.
      */
-    inline int days_in_year() const
+    constexpr int days_in_year() const
     {
       return m_date.days_in_year();
     }
@@ -207,7 +228,7 @@ namespace peelo::chrono
      * Returns <code>true</code> if the year represented by the date is a leap
      * year.
      */
-    inline bool is_leap_year() const
+    constexpr bool is_leap_year() const
     {
       return m_date.is_leap_year();
     }
@@ -215,7 +236,7 @@ namespace peelo::chrono
     /**
      * Returns time value.
      */
-    inline const class time& time() const
+    constexpr const class time& time() const
     {
       return m_time;
     }
@@ -223,7 +244,7 @@ namespace peelo::chrono
     /**
      * Returns hour of the day (from 0 to 23).
      */
-    inline int hour() const
+    constexpr int hour() const
     {
       return m_time.hour();
     }
@@ -231,7 +252,7 @@ namespace peelo::chrono
     /**
      * Returns minute of the hour (from 0 to 59).
      */
-    inline int minute() const
+    constexpr int minute() const
     {
       return m_time.minute();
     }
@@ -239,7 +260,7 @@ namespace peelo::chrono
     /**
      * Returns second of the minute (from 0 to 59).
      */
-    inline int second() const
+    constexpr int second() const
     {
       return m_time.second();
     }
@@ -247,7 +268,7 @@ namespace peelo::chrono
     /**
      * Calculates UNIX timestamp from date and time.
      */
-    inline std::int64_t timestamp() const
+    constexpr std::int64_t timestamp() const
     {
       return (
         static_cast<std::int64_t>(m_time.second())

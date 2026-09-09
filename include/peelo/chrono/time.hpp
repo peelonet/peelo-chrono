@@ -71,12 +71,24 @@ namespace peelo::chrono
     /**
      * Copy constructor.
      */
-    time(const time&) = default;
+    constexpr time(const time&) = default;
 
     /**
      * Move constructor.
      */
     time(time&&) = default;
+
+    /**
+     * Constructs a time without runtime validation.
+     *
+     * The caller must ensure that \p hour, \p minute, and \p second form a
+     * valid time of day. Intended for compile-time use with \c constexpr and
+     * \c static_assert.
+     */
+    static constexpr time from_hms(int hour, int minute, int second)
+    {
+      return time(hour, minute, second, literal_t{});
+    }
 
     /**
      * Returns current time based on system clock.
@@ -102,7 +114,7 @@ namespace peelo::chrono
      * \return       A boolean flag indicating whether an valid time can be
      *               constructed from given values
      */
-    static inline bool is_valid(int hour, int minute, int second)
+    static constexpr bool is_valid(int hour, int minute, int second)
     {
       return (hour >= 0 && hour <= 23)
         && (minute >= 0 && minute <= 59)
@@ -112,7 +124,7 @@ namespace peelo::chrono
     /**
      * Returns hour of the day (from 0 to 23).
      */
-    inline int hour() const
+    constexpr int hour() const
     {
       return m_hour;
     }
@@ -120,7 +132,7 @@ namespace peelo::chrono
     /**
      * Returns minute of the hour (from 0 to 59).
      */
-    inline int minute() const
+    constexpr int minute() const
     {
       return m_minute;
     }
@@ -128,7 +140,7 @@ namespace peelo::chrono
     /**
      * Returns second of the minute (from 0 to 59).
      */
-    inline int second() const
+    constexpr int second() const
     {
       return m_second;
     }
@@ -196,7 +208,7 @@ namespace peelo::chrono
      *
      * \param that Other time value to test equality with
      */
-    inline bool equals(const time& that) const
+    constexpr bool equals(const time& that) const
     {
       return equals(that.m_hour, that.m_minute, that.m_second);
     }
@@ -210,7 +222,7 @@ namespace peelo::chrono
      * \return       A boolean flag indicating whether this time has given
      *               values or not
      */
-    inline bool equals(int hour, int minute, int second) const
+    constexpr bool equals(int hour, int minute, int second) const
     {
       return hour == m_hour && m_minute == minute && m_second == second;
     }
@@ -218,7 +230,7 @@ namespace peelo::chrono
     /**
      * Equality testing operator.
      */
-    inline bool operator==(const time& that) const
+    constexpr bool operator==(const time& that) const
     {
       return equals(that);
     }
@@ -226,7 +238,7 @@ namespace peelo::chrono
     /**
      * Non-equality testing operator.
      */
-    inline bool operator!=(const time& that) const
+    constexpr bool operator!=(const time& that) const
     {
       return !equals(that);
     }
@@ -237,7 +249,7 @@ namespace peelo::chrono
      * \param that Other time to compare this one against
      * \return     Integer value indicating comparison result
      */
-    inline int compare(const time& that) const
+    constexpr int compare(const time& that) const
     {
       return compare(that.m_hour, that.m_minute, that.m_second);
     }
@@ -250,7 +262,7 @@ namespace peelo::chrono
      * \param second Second of the minute
      * \return       Integer value indicating comparison result
      */
-    int compare(int hour, int minute, int second) const
+    constexpr int compare(int hour, int minute, int second) const
     {
       if (m_hour != hour)
       {
@@ -271,7 +283,7 @@ namespace peelo::chrono
     /**
      * Comparison operator.
      */
-    inline bool operator<(const time& that) const
+    constexpr bool operator<(const time& that) const
     {
       return compare(that) < 0;
     }
@@ -279,7 +291,7 @@ namespace peelo::chrono
     /**
      * Comparison operator.
      */
-    inline bool operator>(const time& that) const
+    constexpr bool operator>(const time& that) const
     {
       return compare(that) > 0;
     }
@@ -287,7 +299,7 @@ namespace peelo::chrono
     /**
      * Comparison operator.
      */
-    inline bool operator<=(const time& that) const
+    constexpr bool operator<=(const time& that) const
     {
       return compare(that) <= 0;
     }
@@ -295,7 +307,7 @@ namespace peelo::chrono
     /**
      * Comparison operator.
      */
-    inline bool operator>=(const time& that) const
+    constexpr bool operator>=(const time& that) const
     {
       return compare(that) >= 0;
     }
@@ -303,7 +315,7 @@ namespace peelo::chrono
     /**
      * Increments time by one second.
      */
-    time& operator++()
+    constexpr time& operator++()
     {
       if (++m_second >= 60)
       {
@@ -324,7 +336,7 @@ namespace peelo::chrono
     /**
      * Increments time by one second.
      */
-    time operator++(int)
+    constexpr time operator++(int)
     {
       const time return_value(*this);
 
@@ -347,7 +359,7 @@ namespace peelo::chrono
     /**
      * Decrements time by one second.
      */
-    time& operator--()
+    constexpr time& operator--()
     {
       if (--m_second < 0)
       {
@@ -368,7 +380,7 @@ namespace peelo::chrono
     /**
      * Decrements time by one second.
      */
-    time operator--(int)
+    constexpr time operator--(int)
     {
       const time return_value(*this);
 
@@ -447,6 +459,16 @@ namespace peelo::chrono
     }
 
   private:
+    struct literal_t
+    {
+      explicit literal_t() = default;
+    };
+
+    constexpr time(int hour, int minute, int second, literal_t)
+      : m_hour(hour)
+      , m_minute(minute)
+      , m_second(second) {}
+
     static void normalize(int& second, int& minute, int& hour)
     {
       static const int seconds_per_minute = 60;
