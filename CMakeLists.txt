@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.14)
 
 project(
   PeeloChrono
-  VERSION 1.1.0
+  VERSION 2.0.0
   DESCRIPTION "Header only minimal C++ Gregorian calendar implementation."
   HOMEPAGE_URL "https://github.com/peelonet/peelo-chrono"
   LANGUAGES CXX
